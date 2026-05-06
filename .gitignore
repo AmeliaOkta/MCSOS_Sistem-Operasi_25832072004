@@ -1,0 +1,19 @@
+# Build artifacts
+build/
+*.o
+*.elf
+*.bin
+*.iso
+*.img
+*.map
+*.log
+
+# Editor and OS noise
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Python cache
+__pycache__/
+*.pyc
