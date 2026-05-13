@@ -1,19 +1,9 @@
-# Build artifacts
 build/
-*.o
-*.elf
-*.bin
+iso_root/
 *.iso
 *.img
+*.elf
 *.map
-*.log
-
-# Editor and OS noise
-.vscode/
-.idea/
-.DS_Store
-Thumbs.db
-
-# Python cache
-__pycache__/
-*.pyc
+*.o
+*.d
+third_party/limine/
