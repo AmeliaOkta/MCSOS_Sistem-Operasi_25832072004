@@ -224,6 +224,40 @@ run-qemu-smoke: make-iso
 # Clean
 # ══════════════════════════════════════════════════════════════════════════
 
+# ══════════════════════════════════════════════════════════════════════════
+# M7: VMM targets
+# ══════════════════════════════════════════════════════════════════════════
+
+M7_HOST_CFLAGS := -std=c17 -Wall -Wextra -Werror -Ikernel/include -Ikernel/arch/x86_64/include -DMCSOS_HOST_TEST
+
+# ── Freestanding VMM object (kernel target) ────────────────────────────────
+build/vmm.o: kernel/core/vmm.c \
+             kernel/include/vmm.h \
+             kernel/include/types.h
+>mkdir -p build
+>$(CC) $(COMMON_CFLAGS) -c kernel/core/vmm.c -o build/vmm.o
+
+# ── Host unit test binary ──────────────────────────────────────────────────
+build/test_vmm_host: kernel/core/vmm.c \
+                     tests/test_vmm_host.c \
+                     kernel/include/vmm.h \
+                     kernel/include/types.h
+>mkdir -p build
+>$(HOSTCC) $(M7_HOST_CFLAGS) \
+>    kernel/core/vmm.c \
+>    tests/test_vmm_host.c \
+>    -o build/test_vmm_host
+
+# ── M7 check: unit test + freestanding audit ───────────────────────────────
+check-m7: build/vmm.o build/test_vmm_host
+>./build/test_vmm_host
+>$(NM) -u build/vmm.o | tee build/vmm.undefined.txt
+>test ! -s build/vmm.undefined.txt
+>$(OBJDUMP) -dr build/vmm.o > build/vmm.objdump.txt
+>grep -q "invlpg" build/vmm.objdump.txt
+>grep -q "cr3" build/vmm.objdump.txt
+>echo "[PASS] M7 check selesai"
+
 clean:
 >rm -rf $(BUILD_DIR)
 
