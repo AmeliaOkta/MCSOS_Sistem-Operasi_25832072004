@@ -1,0 +1,56 @@
+== git ==
+/home/user/src/mcsos
+72b3770
+?? evidence/m9/
+?? scripts/explore_layout.sh
+?? scripts/m7_discovery.sh
+?? scripts/recheck_m0_m6.sh
+?? tools/scripts/run_qemu.sh.m6.bak
+
+== tools ==
+Ubuntu clang version 18.1.3 (1ubuntu1)
+Target: x86_64-pc-linux-gnu
+Thread model: posix
+InstalledDir: /usr/bin
+gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0
+Ubuntu LLD 18.1.3 (compatible with GNU linkers)
+GNU ld (GNU Binutils for Ubuntu) 2.42
+GNU Make 4.3
+QEMU emulator version 8.2.2 (Debian 1:8.2.2+ds-0ubuntu1.16)
+Copyright (c) 2003-2023 Fabrice Bellard and the QEMU Project developers
+GNU gdb (Ubuntu 15.1-1ubuntu1~24.04.1) 15.1
+
+== previous artifacts ==
+build/kernel.disasm.txt
+build/kernel.elf
+build/kernel.map
+build/kernel.readelf.header.txt
+build/kernel.readelf.programs.txt
+build/kernel.syms.txt
+build/m6_qemu.log
+build/m8/git_diff.patch
+build/m8/kmem.freestanding.o
+build/m8/kmem.objdump.txt
+build/m8/nm_u.txt
+build/m8/qemu_m8.log
+build/m8/readelf_h.txt
+build/m8/test_kmem
+build/m8/test_kmem.log
+build/mcsos.iso
+build/mcsos.iso.sha256
+build/qemu-serial.log
+evidence/M3/kernel.disasm.txt
+evidence/M3/kernel.elf
+evidence/M3/kernel.map
+evidence/M3/kernel.readelf.header.txt
+evidence/M3/kernel.readelf.programs.txt
+evidence/M3/kernel.syms.txt
+evidence/M3/manifest.txt
+evidence/M4/kernel.disasm.txt
+evidence/M4/kernel.elf
+evidence/M4/kernel.map
+evidence/M4/kernel.readelf.header.txt
+evidence/M4/kernel.readelf.programs.txt
+evidence/M4/kernel.syms.txt
+evidence/M4/manifest.txt
+evidence/m9/preflight_m9.log
