@@ -72,8 +72,8 @@ if [ ! -s "$LOG" ]; then
   exit 1
 fi
 
-grep -q 'MCSOS 260502 M2 boot path entered' "$LOG"
-grep -q '\[M2\] early serial online' "$LOG"
-grep -q '\[M2\] kernel reached controlled halt loop' "$LOG"
+grep -qF '[MCSOS:M7] boot: memory manager bring-up start' "$LOG"
+grep -qF '[m7] vmm: core initialized' "$LOG"
+grep -qF '[MCSOS:M7] sti: enabling interrupts' "$LOG"
 
 echo "OK: QEMU serial log valid: $LOG"
