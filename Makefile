@@ -229,3 +229,6 @@ clean:
 
 distclean: clean
 >rm -rf iso_root limine evidence
+
+run-qemu-gdb: make-iso
+>bash tools/scripts/run_qemu_debug.sh 2>&1 | tee build/m6_qemu_gdb.log || true
