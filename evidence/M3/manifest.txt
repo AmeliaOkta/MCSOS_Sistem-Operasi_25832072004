@@ -1,6 +1,6 @@
 # M3 evidence manifest
-generated_utc=2026-05-14T01:19:32Z
-commit=cb077dbd54b19c325c296e9a9ba3b152777ad9db
+generated_utc=2026-05-14T08:07:33Z
+commit=86048bb132e9aa6d87505439e57af7e2373f2f33
 clang=Ubuntu clang version 18.1.3 (1ubuntu1)
 lld=Ubuntu LLD 18.1.3 (compatible with GNU linkers)
 qemu=QEMU emulator version 8.2.2 (Debian 1:8.2.2+ds-0ubuntu1.16)

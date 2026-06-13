@@ -1,58 +1,58 @@
-#include <stdint.h>
-#include <mcsos/arch/idt.h>
-#include <mcsos/arch/isr.h>
-#include <mcsos/kernel/log.h>
-#include <mcsos/kernel/panic.h>
+#include "mcsos/arch/io.h"
 
-static x86_64_idt_entry_t idt[X86_64_IDT_VECTOR_COUNT];
-static x86_64_idtr_t idtr;
+#define X86_64_IDT_VECTOR_COUNT 256
+#define X86_64_IDT_GATE_INTERRUPT 0x8E
+#define X86_64_IDT_GATE_TRAP      0xEF
 
-static inline void lidt(const x86_64_idtr_t *descriptor) {
-    __asm__ volatile ("lidt (%0)" :: "r"(descriptor) : "memory");
+struct x86_64_idt_entry_t {
+    uint16_t offset_low;
+    uint16_t selector;
+    uint8_t ist;
+    uint8_t type_attr;
+    uint16_t offset_mid;
+    uint32_t offset_high;
+    uint32_t zero;
+} __attribute__((packed));
+
+struct x86_64_idtr_t {
+    uint16_t limit;
+    uint64_t base;
+} __attribute__((packed));
+
+extern void *isr_stub_table[];
+
+static struct x86_64_idt_entry_t idt[X86_64_IDT_VECTOR_COUNT];
+static struct x86_64_idtr_t idtr;
+
+static void x86_64_idt_set_gate(uint8_t vector, uint64_t handler, uint8_t type_attr) {
+    idt[vector].offset_low = (uint16_t)(handler & 0xFFFF);
+    idt[vector].selector = x86_64_read_cs();
+    idt[vector].ist = 0;
+    idt[vector].type_attr = type_attr;
+    idt[vector].offset_mid = (uint16_t)((handler >> 16) & 0xFFFF);
+    idt[vector].offset_high = (uint32_t)((handler >> 32) & 0xFFFFFFFF);
+    idt[vector].zero = 0;
 }
 
-void x86_64_idt_set_gate(uint8_t vector, uint64_t handler, uint8_t type_attributes) {
-    idt[vector].offset_low = (uint16_t)(handler & 0xFFFFu);
-    idt[vector].selector = (uint16_t)X86_64_KERNEL_CODE_SELECTOR;
-    idt[vector].ist = 0u;
-    idt[vector].type_attributes = type_attributes;
-    idt[vector].offset_mid = (uint16_t)((handler >> 16u) & 0xFFFFu);
-    idt[vector].offset_high = (uint32_t)((handler >> 32u) & 0xFFFFFFFFu);
-    idt[vector].reserved = 0u;
-}
-
-uint64_t x86_64_idt_base_for_test(void) {
-    return idtr.base;
-}
-
-uint16_t x86_64_idt_limit_for_test(void) {
-    return idtr.limit;
+static void lidt(const struct x86_64_idtr_t *ptr) {
+    __asm__ volatile ("lidt (%0)" :: "r"(ptr) : "memory");
 }
 
 void x86_64_idt_init(void) {
-    for (uint16_t i = 0u; i < X86_64_IDT_VECTOR_COUNT; ++i) {
-        x86_64_idt_set_gate((uint8_t)i, 0u, 0u);
+    for (uint16_t i = 0; i < X86_64_IDT_VECTOR_COUNT; ++i) {
+        x86_64_idt_set_gate((uint8_t)i, 0, 0);
     }
 
-    for (uint8_t vector = 0u; vector < 32u; ++vector) {
+    for (uint8_t vector = 0; vector < 48; ++vector) {
         uint8_t gate_type = X86_64_IDT_GATE_INTERRUPT;
-        if (vector == 3u) {
+        if (vector == 3) {
             gate_type = X86_64_IDT_GATE_TRAP;
         }
-        x86_64_idt_set_gate(vector, (uint64_t)(uintptr_t)x86_64_exception_stubs[vector], gate_type);
+        x86_64_idt_set_gate(vector, (uint64_t) isr_stub_table[vector], gate_type);
     }
 
-    idtr.limit = (uint16_t)(sizeof(idt) - 1u);
+    idtr.limit = (uint16_t)(sizeof(idt) - 1);
     idtr.base = (uint64_t)(uintptr_t)&idt[0];
 
-    KERNEL_ASSERT(sizeof(x86_64_idt_entry_t) == 16u);
-    KERNEL_ASSERT(idtr.limit == (uint16_t)((X86_64_IDT_VECTOR_COUNT * sizeof(x86_64_idt_entry_t)) - 1u));
     lidt(&idtr);
-    log_key_value_hex64("idt_base", idtr.base);
-    log_key_value_hex64("idt_limit", (uint64_t)idtr.limit);
-    log_writeln("[M4] IDT loaded");
-}
-
-void x86_64_trigger_breakpoint_for_test(void) {
-    __asm__ volatile ("int3");
 }

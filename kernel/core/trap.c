@@ -2,6 +2,7 @@
 #include <mcsos/arch/idt.h>
 #include <mcsos/kernel/log.h>
 #include <mcsos/kernel/panic.h>
+#include <mcsos/arch/pic.h>
 
 static const char *exception_names[32] = {
     "#DE Divide Error",
@@ -75,6 +76,18 @@ void x86_64_trap_dispatch(x86_64_trap_frame_t *frame) {
         log_writeln("[M4] breakpoint handled; returning with iretq");
         return;
     }
+if (frame->vector == 3u) {
+        log_writeln("[M4] breakpoint handled; returning with irq");
+        return;
+    }
 
+    else if (frame->vector >= 32u && frame->vector <= 47u) {
+
+        pic_send_eoi(frame->vector -
+32u);
+        return;
+    }
+
+    KERNEL_PANIC("unrecoverable CPU exception", frame->vector);
     KERNEL_PANIC("unrecoverable CPU exception", frame->vector);
 }
