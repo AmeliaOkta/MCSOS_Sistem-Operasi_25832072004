@@ -39,6 +39,8 @@ static uint8_t             kernel_pmm_bitmap[PMM_BITMAP_BYTES]
 static struct vmm_space kernel_vmm;
 static uint64_t         kernel_hhdm_offset;
 
+static void m8_heap_bootstrap(void);
+
 /* ── External symbols dari M4/M5 ───────────────────────────────────────── */
 extern void x86_64_idt_init(void);
 extern void x86_64_trigger_breakpoint_test(void);
@@ -218,6 +220,8 @@ void kmain(void) {
     kernel_vmm_init();
     log_writeln("[MCSOS:M7] vmm: ready");
 
+    m8_heap_bootstrap();
+    log_writeln("[MCSOS:M8] heap: ready");
     log_writeln("[MCSOS:M7] sti: enabling interrupts");
     cpu_sti();
 
@@ -228,4 +232,37 @@ void kmain(void) {
     for (;;) {
         cpu_hlt();
     }
+}
+
+/* ── M8: Early kernel heap bootstrap ───────────────────────────────────────
+ * Arena statik di .bss, sudah terpetakan oleh Limine sebelum kmain.
+ * Dipanggil setelah PMM dan VMM siap, sebelum sti().
+ * ───────────────────────────────────────────────────────────────────────── */
+#include "mcsos/kmem.h"
+
+#define M8_BOOT_HEAP_SIZE (64u * 1024u)
+static unsigned char m8_boot_heap[M8_BOOT_HEAP_SIZE] __attribute__((aligned(4096)));
+
+static void m8_heap_bootstrap(void) {
+    int rc = kmem_init(m8_boot_heap, sizeof(m8_boot_heap));
+    if (rc != 0) {
+        KERNEL_PANIC("M8 kmem_init failed", (uint64_t)rc);
+    }
+
+    void *probe = kmem_alloc(128);
+    if (probe == (void *)0) {
+        KERNEL_PANIC("M8 kmem_alloc probe failed", 0);
+    }
+
+    if (kmem_free_checked(probe) != 0) {
+        KERNEL_PANIC("M8 kmem_free_checked probe failed", 0);
+    }
+
+    kmem_stats_t st;
+    kmem_get_stats(&st);
+    log_writeln("[m8] kmem: initialized");
+    log_key_value_hex64("[m8] kmem: total_bytes", (uint64_t)st.total_bytes);
+    log_key_value_hex64("[m8] kmem: free_bytes",  (uint64_t)st.free_bytes);
+    log_key_value_hex64("[m8] kmem: largest_free",(uint64_t)st.largest_free);
+    log_key_value_hex64("[m8] kmem: block_count", (uint64_t)st.block_count);
 }

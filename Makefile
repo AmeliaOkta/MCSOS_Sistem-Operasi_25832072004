@@ -48,7 +48,8 @@ COMMON_CFLAGS := \
     -Werror \
     -Ikernel/arch/x86_64/include \
     -Ikernel/include \
-    -Ilimine
+    -Ilimine \
+    -Iinclude
 
 COMMON_ASFLAGS := \
     --target=x86_64-unknown-none-elf \
@@ -62,7 +63,8 @@ COMMON_ASFLAGS := \
     -Werror \
     -Ikernel/arch/x86_64/include \
     -Ikernel/include \
-    -Ilimine
+    -Ilimine \
+    -Iinclude
 
 CFLAGS     := $(COMMON_CFLAGS)
 ASFLAGS    := $(COMMON_ASFLAGS)
@@ -266,3 +268,44 @@ distclean: clean
 
 run-qemu-gdb: make-iso
 >bash tools/scripts/run_qemu_debug.sh 2>&1 | tee build/m6_qemu_gdb.log || true
+
+# ══════════════════════════════════════════════════════════════════════════
+
+# ══════════════════════════════════════════════════════════════════════════
+# M8: Kernel Heap / kmem targets
+# ══════════════════════════════════════════════════════════════════════════
+
+M8_CFLAGS_KERNEL := \
+    -std=c17 -Wall -Wextra -Werror \
+    -ffreestanding -fno-builtin -fno-stack-protector \
+    -mno-red-zone \
+    -Iinclude
+
+M8_CFLAGS_HOST := \
+    -std=c17 -Wall -Wextra -Werror \
+    -Iinclude
+
+.PHONY: m8-clean m8-kmem-freestanding m8-kmem-host-test m8-audit m8-all
+
+m8-clean:
+> $(RM) -r build/m8
+
+build/m8:
+> mkdir -p build/m8
+
+m8-kmem-freestanding: | build/m8
+> $(CC) $(M8_CFLAGS_KERNEL) -c kernel/mm/kmem.c -o build/m8/kmem.freestanding.o
+
+m8-kmem-host-test: | build/m8
+> $(HOSTCC) $(M8_CFLAGS_HOST) \
+>     tests/test_kmem.c kernel/mm/kmem.c \
+>     -o build/m8/test_kmem
+> ./build/m8/test_kmem | tee build/m8/test_kmem.log
+
+m8-audit: m8-kmem-freestanding
+> $(NM) -u build/m8/kmem.freestanding.o | tee build/m8/nm_u.txt
+> test ! -s build/m8/nm_u.txt
+> $(READELF) -h build/m8/kmem.freestanding.o > build/m8/readelf_h.txt
+> $(OBJDUMP) -dr build/m8/kmem.freestanding.o > build/m8/kmem.objdump.txt
+
+m8-all: m8-kmem-host-test m8-audit
