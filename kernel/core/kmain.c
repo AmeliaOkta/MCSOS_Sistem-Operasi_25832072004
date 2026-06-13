@@ -6,6 +6,7 @@
 #include "limine.h"
 #include "pmm.h"
 #include "vmm.h"
+#include "mcsos_thread.h"
 
 /* ── Limine memory map request ─────────────────────────────────────────────
  * Limine bootloader scan ELF untuk magic bytes ini dan mengisi
@@ -194,6 +195,65 @@ static void kernel_vmm_init(void) {
 }
 
 /* ── Kernel entry point ─────────────────────────────────────────────────── */
+
+/* -- M9 Scheduler --------------------------------------------------------- */
+static mcsos_scheduler_t g_sched;
+static mcsos_thread_t    g_boot_thread;
+static mcsos_thread_t    g_thread_a;
+static mcsos_thread_t    g_thread_b;
+static unsigned char     g_stack_a[8192] __attribute__((aligned(16)));
+static unsigned char     g_stack_b[8192] __attribute__((aligned(16)));
+
+/* Trampoline: context_switch pakai jmp bukan call.
+ * Baca entry/arg dari current thread lalu panggil. */
+static void m9_thread_start(void) {
+    mcsos_thread_entry_t fn  = g_sched.current->entry;
+    void                *arg = g_sched.current->arg;
+    fn(arg);
+    for (;;) { __asm__ volatile("hlt"); }
+}
+
+static void demo_thread_a(void *arg) {
+    (void)arg;
+    for (;;) {
+        log_writeln("[M9] thread A tick");
+        mcsos_sched_yield(&g_sched);
+    }
+}
+
+static void demo_thread_b(void *arg) {
+    (void)arg;
+    for (;;) {
+        log_writeln("[M9] thread B tick");
+        mcsos_sched_yield(&g_sched);
+    }
+}
+
+static void kernel_m9_scheduler_init(void) {
+    if (mcsos_scheduler_init(&g_sched, &g_boot_thread) != MCSOS_SCHED_OK)
+        KERNEL_PANIC("M9 scheduler_init failed", 0);
+
+    if (mcsos_thread_prepare(&g_thread_a, "demo-a", demo_thread_a, (void *)0,
+                             g_stack_a, sizeof(g_stack_a),
+                             g_sched.next_id++) != MCSOS_SCHED_OK)
+        KERNEL_PANIC("M9 thread_prepare A failed", 0);
+    g_thread_a.context.rip = (uint64_t)(uintptr_t)m9_thread_start;
+
+    if (mcsos_thread_prepare(&g_thread_b, "demo-b", demo_thread_b, (void *)0,
+                             g_stack_b, sizeof(g_stack_b),
+                             g_sched.next_id++) != MCSOS_SCHED_OK)
+        KERNEL_PANIC("M9 thread_prepare B failed", 0);
+    g_thread_b.context.rip = (uint64_t)(uintptr_t)m9_thread_start;
+
+    if (mcsos_sched_enqueue(&g_sched, &g_thread_a) != MCSOS_SCHED_OK)
+        KERNEL_PANIC("M9 enqueue A failed", 0);
+    if (mcsos_sched_enqueue(&g_sched, &g_thread_b) != MCSOS_SCHED_OK)
+        KERNEL_PANIC("M9 enqueue B failed", 0);
+
+    log_writeln("[M9] scheduler initialized");
+    mcsos_sched_yield(&g_sched);
+}
+
 void kmain(void) {
     cpu_cli();
     serial_init();
@@ -224,6 +284,9 @@ void kmain(void) {
     log_writeln("[MCSOS:M8] heap: ready");
     log_writeln("[MCSOS:M7] sti: enabling interrupts");
     cpu_sti();
+
+    kernel_m9_scheduler_init();
+    log_writeln("[M9] boot idle: hlt loop");
 
 #if defined(MCSOS_M4_TRIGGER_BREAKPOINT)
     x86_64_trigger_breakpoint_test();

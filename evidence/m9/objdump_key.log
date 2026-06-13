@@ -1,0 +1,49 @@
+   4:	e9 00 00 00 00       	jmp    9 <mcsos_thread_trampoline+0x9>
+   9:	f4                   	hlt
+   a:	e9 fa ff ff ff       	jmp    9 <mcsos_thread_trampoline+0x9>
+  3d:	e9 23 01 00 00       	jmp    165 <mcsos_scheduler_init+0x155>
+ 16d:	c3                   	ret
+ 1dd:	c3                   	ret
+ 22c:	e9 66 01 00 00       	jmp    397 <mcsos_thread_prepare+0x1b7>
+ 246:	e9 4c 01 00 00       	jmp    397 <mcsos_thread_prepare+0x1b7>
+ 274:	e9 1e 01 00 00       	jmp    397 <mcsos_thread_prepare+0x1b7>
+ 2aa:	e9 e8 00 00 00       	jmp    397 <mcsos_thread_prepare+0x1b7>
+ 39f:	c3                   	ret
+ 3c8:	c3                   	ret
+ 412:	e9 b2 00 00 00       	jmp    4c9 <mcsos_sched_enqueue+0xf9>
+ 448:	e9 7c 00 00 00       	jmp    4c9 <mcsos_sched_enqueue+0xf9>
+ 48e:	e9 1f 00 00 00       	jmp    4b2 <mcsos_sched_enqueue+0xe2>
+ 4d1:	c3                   	ret
+ 520:	c3                   	ret
+ 55d:	e9 8c 00 00 00       	jmp    5ee <mcsos_sched_pick_next+0xbe>
+ 585:	e9 64 00 00 00       	jmp    5ee <mcsos_sched_pick_next+0xbe>
+ 5f7:	c3                   	ret
+ 641:	e9 1e 01 00 00       	jmp    764 <mcsos_sched_yield+0x164>
+ 677:	e9 e8 00 00 00       	jmp    764 <mcsos_sched_yield+0x164>
+ 69c:	e9 c3 00 00 00       	jmp    764 <mcsos_sched_yield+0x164>
+ 6ec:	e9 73 00 00 00       	jmp    764 <mcsos_sched_yield+0x164>
+ 6f1:	e9 00 00 00 00       	jmp    6f6 <mcsos_sched_yield+0xf6>
+ 76c:	c3                   	ret
+ 7b1:	e9 30 00 00 00       	jmp    7e6 <mcsos_sched_tick+0x76>
+ 7ee:	c3                   	ret
+ 831:	e9 3b 00 00 00       	jmp    871 <mcsos_thread_block_current+0x81>
+ 852:	e9 1a 00 00 00       	jmp    871 <mcsos_thread_block_current+0x81>
+ 879:	c3                   	ret
+ 8a9:	e9 2a 00 00 00       	jmp    8d8 <mcsos_thread_mark_ready+0x58>
+ 8c3:	e9 10 00 00 00       	jmp    8d8 <mcsos_thread_mark_ready+0x58>
+ 8e0:	c3                   	ret
+ 91d:	e9 47 00 00 00       	jmp    969 <mcsos_sched_ready_count+0x79>
+ 95c:	e9 d5 ff ff ff       	jmp    936 <mcsos_sched_ready_count+0x46>
+ 972:	c3                   	ret
+ 9c1:	e9 00 01 00 00       	jmp    ac6 <mcsos_sched_validate+0x146>
+ a14:	e9 ad 00 00 00       	jmp    ac6 <mcsos_sched_validate+0x146>
+ a31:	e9 90 00 00 00       	jmp    ac6 <mcsos_sched_validate+0x146>
+ a79:	e9 48 00 00 00       	jmp    ac6 <mcsos_sched_validate+0x146>
+ a7e:	e9 5f ff ff ff       	jmp    9e2 <mcsos_sched_validate+0x62>
+ a9c:	e9 25 00 00 00       	jmp    ac6 <mcsos_sched_validate+0x146>
+ aba:	e9 07 00 00 00       	jmp    ac6 <mcsos_sched_validate+0x146>
+ ace:	c3                   	ret
+0000000000000ad0 <mcsos_context_switch>:
+ ad0:	48 8d 05 3d 00 00 00 	lea    0x3d(%rip),%rax        # b14 <mcsos_context_switch+0x44>
+ b11:	ff 66 38             	jmp    *0x38(%rsi)
+ b14:	c3                   	ret
