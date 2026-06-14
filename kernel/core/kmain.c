@@ -289,6 +289,9 @@ static void kernel_m10_syscall_init(void) {
     int64_t r = mcsos_syscall_dispatch(MCSOS_SYS_PING, 0, 0, 0, 0, 0, 0);
     if (r != 0x2605020AL) KERNEL_PANIC("M10 syscall ping failed", 0);
     log_writeln("[M10] syscall ping ok");
+    int64_t ticks = mcsos_syscall_dispatch(MCSOS_SYS_GET_TICKS, 0, 0, 0, 0, 0, 0);
+    if (ticks < 0) KERNEL_PANIC("M10 syscall get_ticks failed", 0);
+    log_writeln("[M10] syscall get_ticks ok");
     log_writeln("[M10] syscall smoke done");
 }
 void kmain(void) {
