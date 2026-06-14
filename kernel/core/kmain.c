@@ -7,6 +7,9 @@
 #include "pmm.h"
 #include "vmm.h"
 #include "mcsos_thread.h"
+#include "mcsos/syscall.h"
+#include "mcsos/arch/idt.h"
+#include "mcsos/arch/pit.h"
 
 /* ── Limine memory map request ─────────────────────────────────────────────
  * Limine bootloader scan ELF untuk magic bytes ini dan mengisi
@@ -254,6 +257,40 @@ static void kernel_m9_scheduler_init(void) {
     mcsos_sched_yield(&g_sched);
 }
 
+
+extern void serial_putc(char c);
+
+static int64_t k_write_serial(const char *buf, size_t len) {
+    for (size_t i = 0u; i < len; i++) serial_putc(buf[i]);
+    return (int64_t)len;
+}
+static uint64_t k_get_ticks(void)    { return timer_ticks(); }
+static void k_yield_current(void)    { mcsos_sched_yield(&g_sched); }
+static void k_exit_current(int code) {
+    (void)code;
+    log_writeln("[M10] exit_thread stub");
+    cpu_hlt();
+}
+static void kernel_m10_syscall_init(void) {
+    mcsos_syscall_ops_t ops = {
+        .get_ticks     = k_get_ticks,
+        .yield_current = k_yield_current,
+        .exit_current  = k_exit_current,
+        .write_serial  = k_write_serial,
+    };
+    mcsos_syscall_init(&ops);
+    mcsos_syscall_set_user_region((mcsos_user_region_t){
+        .base  = 0x0000000000400000ULL,
+        .limit = 0x0000800000000000ULL,
+    });
+    extern void x86_64_syscall_int80_stub(void);
+    x86_64_idt_set_gate(0x80, (uint64_t)(uintptr_t)x86_64_syscall_int80_stub, X86_64_IDT_GATE_INTERRUPT);
+    log_writeln("[M10] syscall init");
+    int64_t r = mcsos_syscall_dispatch(MCSOS_SYS_PING, 0, 0, 0, 0, 0, 0);
+    if (r != 0x2605020AL) KERNEL_PANIC("M10 syscall ping failed", 0);
+    log_writeln("[M10] syscall ping ok");
+    log_writeln("[M10] syscall smoke done");
+}
 void kmain(void) {
     cpu_cli();
     serial_init();
@@ -285,6 +322,7 @@ void kmain(void) {
     log_writeln("[MCSOS:M7] sti: enabling interrupts");
     cpu_sti();
 
+    kernel_m10_syscall_init();
     kernel_m9_scheduler_init();
     log_writeln("[M9] boot idle: hlt loop");
 

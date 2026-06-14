@@ -105,6 +105,7 @@ PANIC_OBJ := \
 # ── Phony targets ──────────────────────────────────────────────────────────
 .PHONY: all build breakpoint panic inspect audit \
         check-m6 make-iso run-qemu-smoke \
+        check-m10 m10-host-test m10-freestanding m10-audit m10-clean \
         clean distclean
 
 # ── Default target ─────────────────────────────────────────────────────────
@@ -344,3 +345,63 @@ m9-audit: m9-freestanding
 
 m9-clean:
 >rm -rf $(BUILD_M9)
+
+#m10 Syscal target
+# M10: Syscall targets
+
+M10_HOST_CFLAGS := \
+    -std=c17 \
+    -Wall \
+    -Wextra \
+    -Werror \
+    -Iinclude \
+    -Ikernel/include \
+    -Ikernel/arch/x86_64/include
+
+build/test_syscall_host: tests/test_syscall_host.c \
+                         kernel/syscall/syscall.c \
+                         include/mcsos/syscall.h
+>mkdir -p build
+>$(HOSTCC) $(M10_HOST_CFLAGS) \
+>    tests/test_syscall_host.c \
+>    kernel/syscall/syscall.c \
+>    -o build/test_syscall_host
+
+build/m10_syscall.o: kernel/syscall/syscall.c include/mcsos/syscall.h
+>mkdir -p build
+>$(CC) $(COMMON_CFLAGS) -c kernel/syscall/syscall.c -o build/m10_syscall.o
+
+build/m10_syscall_entry.o: kernel/syscall/syscall_entry.S
+>mkdir -p build
+>$(CC) $(COMMON_ASFLAGS) -c kernel/syscall/syscall_entry.S \
+>    -o build/m10_syscall_entry.o
+
+build/m10_syscall_combined.o: build/m10_syscall.o build/m10_syscall_entry.o
+>$(LD) -r $^ -o $@
+
+check-m10: build/test_syscall_host build/m10_syscall_combined.o
+>./build/test_syscall_host
+>$(NM) -u build/m10_syscall_combined.o > build/m10_nm_undefined.txt
+>test ! -s build/m10_nm_undefined.txt
+>$(READELF) -h build/m10_syscall_combined.o > build/m10_readelf_header.txt
+>$(OBJDUMP) -dr build/m10_syscall_combined.o > build/m10_objdump.txt
+>grep -q 'Machine:.*Advanced Micro Devices X86-64' build/m10_readelf_header.txt
+>grep -q 'x86_64_syscall_int80_stub' build/m10_objdump.txt
+>grep -q 'iretq' build/m10_objdump.txt
+>sha256sum build/test_syscall_host build/m10_syscall_combined.o \
+>    > build/m10_SHA256SUMS
+>echo "[PASS] M10 check selesai"
+
+m10-host-test: build/test_syscall_host
+>./build/test_syscall_host
+
+m10-freestanding: build/m10_syscall_combined.o
+
+m10-audit: build/m10_syscall_combined.o
+>$(NM) -u build/m10_syscall_combined.o
+>$(READELF) -h build/m10_syscall_combined.o
+>$(OBJDUMP) -dr build/m10_syscall_combined.o | grep -E 'x86_64_syscall_int80_stub|iretq'
+
+m10-clean:
+>rm -f build/test_syscall_host build/m10_syscall.o build/m10_syscall_entry.o build/m10_syscall_combined.o build/m10_nm_undefined.txt build/m10_readelf_header.txt build/m10_objdump.txt build/m10_SHA256SUMS
+

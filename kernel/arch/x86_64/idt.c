@@ -24,7 +24,7 @@ extern void *isr_stub_table[];
 static struct x86_64_idt_entry_t idt[X86_64_IDT_VECTOR_COUNT];
 static struct x86_64_idtr_t idtr;
 
-static void x86_64_idt_set_gate(uint8_t vector, uint64_t handler, uint8_t type_attr) {
+void x86_64_idt_set_gate(uint8_t vector, uint64_t handler, uint8_t type_attr) {
     idt[vector].offset_low = (uint16_t)(handler & 0xFFFF);
     idt[vector].selector = x86_64_read_cs();
     idt[vector].ist = 0;
