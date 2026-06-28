@@ -1,0 +1,7 @@
+kernel.disasm.txt
+kernel.readelf.header.txt
+kernel.readelf.programs.txt
+kernel.syms.txt
+manifest.txt
+vmm.objdump.txt
+vmm.undefined.txt

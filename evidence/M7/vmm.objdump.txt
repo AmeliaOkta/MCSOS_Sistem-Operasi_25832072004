@@ -1,0 +1,781 @@
+
+build/vmm.o:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000000000 <vmm_is_aligned_4k>:
+   0:	55                   	push   %rbp
+   1:	48 89 e5             	mov    %rsp,%rbp
+   4:	50                   	push   %rax
+   5:	48 89 7d f8          	mov    %rdi,-0x8(%rbp)
+   9:	48 8b 45 f8          	mov    -0x8(%rbp),%rax
+   d:	48 25 ff 0f 00 00    	and    $0xfff,%rax
+  13:	48 83 f8 00          	cmp    $0x0,%rax
+  17:	0f 94 c0             	sete   %al
+  1a:	24 01                	and    $0x1,%al
+  1c:	0f b6 c0             	movzbl %al,%eax
+  1f:	48 83 c4 08          	add    $0x8,%rsp
+  23:	5d                   	pop    %rbp
+  24:	c3                   	ret
+  25:	66 66 2e 0f 1f 84 00 	data16 cs nopw 0x0(%rax,%rax,1)
+  2c:	00 00 00 00 
+
+0000000000000030 <vmm_is_canonical>:
+  30:	55                   	push   %rbp
+  31:	48 89 e5             	mov    %rsp,%rbp
+  34:	48 83 ec 20          	sub    $0x20,%rsp
+  38:	48 89 7d f8          	mov    %rdi,-0x8(%rbp)
+  3c:	48 8b 45 f8          	mov    -0x8(%rbp),%rax
+  40:	48 c1 e8 2f          	shr    $0x2f,%rax
+  44:	48 83 e0 01          	and    $0x1,%rax
+  48:	48 89 45 f0          	mov    %rax,-0x10(%rbp)
+  4c:	48 8b 45 f8          	mov    -0x8(%rbp),%rax
+  50:	48 c1 e8 30          	shr    $0x30,%rax
+  54:	48 89 45 e8          	mov    %rax,-0x18(%rbp)
+  58:	48 83 7d f0 00       	cmpq   $0x0,-0x10(%rbp)
+  5d:	0f 84 18 00 00 00    	je     7b <vmm_is_canonical+0x4b>
+  63:	48 81 7d e8 ff ff 00 	cmpq   $0xffff,-0x18(%rbp)
+  6a:	00 
+  6b:	0f 94 c0             	sete   %al
+  6e:	24 01                	and    $0x1,%al
+  70:	0f b6 c0             	movzbl %al,%eax
+  73:	89 45 e4             	mov    %eax,-0x1c(%rbp)
+  76:	e9 10 00 00 00       	jmp    8b <vmm_is_canonical+0x5b>
+  7b:	48 83 7d e8 00       	cmpq   $0x0,-0x18(%rbp)
+  80:	0f 94 c0             	sete   %al
+  83:	24 01                	and    $0x1,%al
+  85:	0f b6 c0             	movzbl %al,%eax
+  88:	89 45 e4             	mov    %eax,-0x1c(%rbp)
+  8b:	8b 45 e4             	mov    -0x1c(%rbp),%eax
+  8e:	83 f8 00             	cmp    $0x0,%eax
+  91:	0f 95 c0             	setne  %al
+  94:	24 01                	and    $0x1,%al
+  96:	0f b6 c0             	movzbl %al,%eax
+  99:	48 83 c4 20          	add    $0x20,%rsp
+  9d:	5d                   	pop    %rbp
+  9e:	c3                   	ret
+  9f:	90                   	nop
+
+00000000000000a0 <vmm_space_init>:
+  a0:	55                   	push   %rbp
+  a1:	48 89 e5             	mov    %rsp,%rbp
+  a4:	48 83 ec 40          	sub    $0x40,%rsp
+  a8:	48 89 7d f0          	mov    %rdi,-0x10(%rbp)
+  ac:	48 89 75 e8          	mov    %rsi,-0x18(%rbp)
+  b0:	48 89 55 e0          	mov    %rdx,-0x20(%rbp)
+  b4:	48 89 4d d8          	mov    %rcx,-0x28(%rbp)
+  b8:	4c 89 45 d0          	mov    %r8,-0x30(%rbp)
+  bc:	4c 89 4d c8          	mov    %r9,-0x38(%rbp)
+  c0:	48 83 7d f0 00       	cmpq   $0x0,-0x10(%rbp)
+  c5:	0f 84 1c 00 00 00    	je     e7 <vmm_space_init+0x47>
+  cb:	48 83 7d c8 00       	cmpq   $0x0,-0x38(%rbp)
+  d0:	0f 84 11 00 00 00    	je     e7 <vmm_space_init+0x47>
+  d6:	48 8b 7d e8          	mov    -0x18(%rbp),%rdi
+  da:	e8 00 00 00 00       	call   df <vmm_space_init+0x3f>
+			db: R_X86_64_PLT32	vmm_is_aligned_4k-0x4
+  df:	a8 01                	test   $0x1,%al
+  e1:	0f 85 0c 00 00 00    	jne    f3 <vmm_space_init+0x53>
+  e7:	c7 45 fc ff ff ff ff 	movl   $0xffffffff,-0x4(%rbp)
+  ee:	e9 42 00 00 00       	jmp    135 <vmm_space_init+0x95>
+  f3:	48 8b 4d e8          	mov    -0x18(%rbp),%rcx
+  f7:	48 8b 45 f0          	mov    -0x10(%rbp),%rax
+  fb:	48 89 08             	mov    %rcx,(%rax)
+  fe:	48 8b 4d e0          	mov    -0x20(%rbp),%rcx
+ 102:	48 8b 45 f0          	mov    -0x10(%rbp),%rax
+ 106:	48 89 48 08          	mov    %rcx,0x8(%rax)
+ 10a:	48 8b 4d d8          	mov    -0x28(%rbp),%rcx
+ 10e:	48 8b 45 f0          	mov    -0x10(%rbp),%rax
+ 112:	48 89 48 10          	mov    %rcx,0x10(%rax)
+ 116:	48 8b 4d d0          	mov    -0x30(%rbp),%rcx
+ 11a:	48 8b 45 f0          	mov    -0x10(%rbp),%rax
+ 11e:	48 89 48 18          	mov    %rcx,0x18(%rax)
+ 122:	48 8b 4d c8          	mov    -0x38(%rbp),%rcx
+ 126:	48 8b 45 f0          	mov    -0x10(%rbp),%rax
+ 12a:	48 89 48 20          	mov    %rcx,0x20(%rax)
+ 12e:	c7 45 fc 00 00 00 00 	movl   $0x0,-0x4(%rbp)
+ 135:	8b 45 fc             	mov    -0x4(%rbp),%eax
+ 138:	48 83 c4 40          	add    $0x40,%rsp
+ 13c:	5d                   	pop    %rbp
+ 13d:	c3                   	ret
+ 13e:	66 90                	xchg   %ax,%ax
+
+0000000000000140 <vmm_map_page>:
+ 140:	55                   	push   %rbp
+ 141:	48 89 e5             	mov    %rsp,%rbp
+ 144:	48 81 ec 90 00 00 00 	sub    $0x90,%rsp
+ 14b:	48 89 7d f0          	mov    %rdi,-0x10(%rbp)
+ 14f:	48 89 75 e8          	mov    %rsi,-0x18(%rbp)
+ 153:	48 89 55 e0          	mov    %rdx,-0x20(%rbp)
+ 157:	48 89 4d d8          	mov    %rcx,-0x28(%rbp)
+ 15b:	48 83 7d f0 00       	cmpq   $0x0,-0x10(%rbp)
+ 160:	0f 84 3d 00 00 00    	je     1a3 <vmm_map_page+0x63>
+ 166:	48 8b 7d e8          	mov    -0x18(%rbp),%rdi
+ 16a:	e8 00 00 00 00       	call   16f <vmm_map_page+0x2f>
+			16b: R_X86_64_PLT32	vmm_is_canonical-0x4
+ 16f:	a8 01                	test   $0x1,%al
+ 171:	0f 85 05 00 00 00    	jne    17c <vmm_map_page+0x3c>
+ 177:	e9 27 00 00 00       	jmp    1a3 <vmm_map_page+0x63>
+ 17c:	48 8b 7d e8          	mov    -0x18(%rbp),%rdi
+ 180:	e8 00 00 00 00       	call   185 <vmm_map_page+0x45>
+			181: R_X86_64_PLT32	vmm_is_aligned_4k-0x4
+ 185:	a8 01                	test   $0x1,%al
+ 187:	0f 85 05 00 00 00    	jne    192 <vmm_map_page+0x52>
+ 18d:	e9 11 00 00 00       	jmp    1a3 <vmm_map_page+0x63>
+ 192:	48 8b 7d e0          	mov    -0x20(%rbp),%rdi
+ 196:	e8 00 00 00 00       	call   19b <vmm_map_page+0x5b>
+			197: R_X86_64_PLT32	vmm_is_aligned_4k-0x4
+ 19b:	a8 01                	test   $0x1,%al
+ 19d:	0f 85 0c 00 00 00    	jne    1af <vmm_map_page+0x6f>
+ 1a3:	c7 45 fc ff ff ff ff 	movl   $0xffffffff,-0x4(%rbp)
+ 1aa:	e9 83 01 00 00       	jmp    332 <vmm_map_page+0x1f2>
+ 1af:	48 8b 7d f0          	mov    -0x10(%rbp),%rdi
+ 1b3:	48 8b 45 f0          	mov    -0x10(%rbp),%rax
+ 1b7:	48 8b 30             	mov    (%rax),%rsi
+ 1ba:	e8 81 01 00 00       	call   340 <table_from_phys>
+ 1bf:	48 89 45 d0          	mov    %rax,-0x30(%rbp)
+ 1c3:	48 83 7d d0 00       	cmpq   $0x0,-0x30(%rbp)
+ 1c8:	0f 85 0c 00 00 00    	jne    1da <vmm_map_page+0x9a>
+ 1ce:	c7 45 fc ff ff ff ff 	movl   $0xffffffff,-0x4(%rbp)
+ 1d5:	e9 58 01 00 00       	jmp    332 <vmm_map_page+0x1f2>
+ 1da:	48 c7 45 c8 00 00 00 	movq   $0x0,-0x38(%rbp)
+ 1e1:	00 
+ 1e2:	48 c7 45 c0 00 00 00 	movq   $0x0,-0x40(%rbp)
+ 1e9:	00 
+ 1ea:	48 c7 45 b8 00 00 00 	movq   $0x0,-0x48(%rbp)
+ 1f1:	00 
+ 1f2:	48 8b 45 f0          	mov    -0x10(%rbp),%rax
+ 1f6:	48 89 45 98          	mov    %rax,-0x68(%rbp)
+ 1fa:	48 8b 45 d0          	mov    -0x30(%rbp),%rax
+ 1fe:	48 89 45 a0          	mov    %rax,-0x60(%rbp)
+ 202:	48 8b 7d e8          	mov    -0x18(%rbp),%rdi
+ 206:	e8 45 03 00 00       	call   550 <idx_pml4>
+ 20b:	48 8b 7d 98          	mov    -0x68(%rbp),%rdi
+ 20f:	48 8b 75 a0          	mov    -0x60(%rbp),%rsi
+ 213:	89 c2                	mov    %eax,%edx
+ 215:	48 8d 4d c8          	lea    -0x38(%rbp),%rcx
+ 219:	e8 92 01 00 00       	call   3b0 <get_or_alloc_next_table>
+ 21e:	89 45 b4             	mov    %eax,-0x4c(%rbp)
+ 221:	83 7d b4 00          	cmpl   $0x0,-0x4c(%rbp)
+ 225:	0f 84 0b 00 00 00    	je     236 <vmm_map_page+0xf6>
+ 22b:	8b 45 b4             	mov    -0x4c(%rbp),%eax
+ 22e:	89 45 fc             	mov    %eax,-0x4(%rbp)
+ 231:	e9 fc 00 00 00       	jmp    332 <vmm_map_page+0x1f2>
+ 236:	48 8b 45 f0          	mov    -0x10(%rbp),%rax
+ 23a:	48 89 45 88          	mov    %rax,-0x78(%rbp)
+ 23e:	48 8b 45 c8          	mov    -0x38(%rbp),%rax
+ 242:	48 89 45 90          	mov    %rax,-0x70(%rbp)
+ 246:	48 8b 7d e8          	mov    -0x18(%rbp),%rdi
+ 24a:	e8 21 03 00 00       	call   570 <idx_pdpt>
+ 24f:	48 8b 7d 88          	mov    -0x78(%rbp),%rdi
+ 253:	48 8b 75 90          	mov    -0x70(%rbp),%rsi
+ 257:	89 c2                	mov    %eax,%edx
+ 259:	48 8d 4d c0          	lea    -0x40(%rbp),%rcx
+ 25d:	e8 4e 01 00 00       	call   3b0 <get_or_alloc_next_table>
+ 262:	89 45 b4             	mov    %eax,-0x4c(%rbp)
+ 265:	83 7d b4 00          	cmpl   $0x0,-0x4c(%rbp)
+ 269:	0f 84 0b 00 00 00    	je     27a <vmm_map_page+0x13a>
+ 26f:	8b 45 b4             	mov    -0x4c(%rbp),%eax
+ 272:	89 45 fc             	mov    %eax,-0x4(%rbp)
+ 275:	e9 b8 00 00 00       	jmp    332 <vmm_map_page+0x1f2>
+ 27a:	48 8b 45 f0          	mov    -0x10(%rbp),%rax
+ 27e:	48 89 85 78 ff ff ff 	mov    %rax,-0x88(%rbp)
+ 285:	48 8b 45 c0          	mov    -0x40(%rbp),%rax
+ 289:	48 89 45 80          	mov    %rax,-0x80(%rbp)
+ 28d:	48 8b 7d e8          	mov    -0x18(%rbp),%rdi
+ 291:	e8 fa 02 00 00       	call   590 <idx_pd>
+ 296:	48 8b bd 78 ff ff ff 	mov    -0x88(%rbp),%rdi
+ 29d:	48 8b 75 80          	mov    -0x80(%rbp),%rsi
+ 2a1:	89 c2                	mov    %eax,%edx
+ 2a3:	48 8d 4d b8          	lea    -0x48(%rbp),%rcx
+ 2a7:	e8 04 01 00 00       	call   3b0 <get_or_alloc_next_table>
+ 2ac:	89 45 b4             	mov    %eax,-0x4c(%rbp)
+ 2af:	83 7d b4 00          	cmpl   $0x0,-0x4c(%rbp)
+ 2b3:	0f 84 0b 00 00 00    	je     2c4 <vmm_map_page+0x184>
+ 2b9:	8b 45 b4             	mov    -0x4c(%rbp),%eax
+ 2bc:	89 45 fc             	mov    %eax,-0x4(%rbp)
+ 2bf:	e9 6e 00 00 00       	jmp    332 <vmm_map_page+0x1f2>
+ 2c4:	48 8b 7d e8          	mov    -0x18(%rbp),%rdi
+ 2c8:	e8 e3 02 00 00       	call   5b0 <idx_pt>
+ 2cd:	89 45 b0             	mov    %eax,-0x50(%rbp)
+ 2d0:	48 8b 45 b8          	mov    -0x48(%rbp),%rax
+ 2d4:	8b 4d b0             	mov    -0x50(%rbp),%ecx
+ 2d7:	48 8b 04 c8          	mov    (%rax,%rcx,8),%rax
+ 2db:	48 83 e0 01          	and    $0x1,%rax
+ 2df:	48 83 f8 00          	cmp    $0x0,%rax
+ 2e3:	0f 84 0c 00 00 00    	je     2f5 <vmm_map_page+0x1b5>
+ 2e9:	c7 45 fc fd ff ff ff 	movl   $0xfffffffd,-0x4(%rbp)
+ 2f0:	e9 3d 00 00 00       	jmp    332 <vmm_map_page+0x1f2>
+ 2f5:	48 b8 1e 01 00 00 00 	movabs $0x800000000000011e,%rax
+ 2fc:	00 00 80 
+ 2ff:	48 89 45 a8          	mov    %rax,-0x58(%rbp)
+ 303:	48 ba 00 f0 ff ff ff 	movabs $0xffffffffff000,%rdx
+ 30a:	ff 0f 00 
+ 30d:	48 23 55 e0          	and    -0x20(%rbp),%rdx
+ 311:	48 83 ca 01          	or     $0x1,%rdx
+ 315:	48 8b 45 d8          	mov    -0x28(%rbp),%rax
+ 319:	48 23 45 a8          	and    -0x58(%rbp),%rax
+ 31d:	48 09 c2             	or     %rax,%rdx
+ 320:	48 8b 45 b8          	mov    -0x48(%rbp),%rax
+ 324:	8b 4d b0             	mov    -0x50(%rbp),%ecx
+ 327:	48 89 14 c8          	mov    %rdx,(%rax,%rcx,8)
+ 32b:	c7 45 fc 00 00 00 00 	movl   $0x0,-0x4(%rbp)
+ 332:	8b 45 fc             	mov    -0x4(%rbp),%eax
+ 335:	48 81 c4 90 00 00 00 	add    $0x90,%rsp
+ 33c:	5d                   	pop    %rbp
+ 33d:	c3                   	ret
+ 33e:	66 90                	xchg   %ax,%ax
+
+0000000000000340 <table_from_phys>:
+ 340:	55                   	push   %rbp
+ 341:	48 89 e5             	mov    %rsp,%rbp
+ 344:	48 83 ec 20          	sub    $0x20,%rsp
+ 348:	48 89 7d f0          	mov    %rdi,-0x10(%rbp)
+ 34c:	48 89 75 e8          	mov    %rsi,-0x18(%rbp)
+ 350:	48 83 7d f0 00       	cmpq   $0x0,-0x10(%rbp)
+ 355:	0f 84 20 00 00 00    	je     37b <table_from_phys+0x3b>
+ 35b:	48 8b 45 f0          	mov    -0x10(%rbp),%rax
+ 35f:	48 83 78 20 00       	cmpq   $0x0,0x20(%rax)
+ 364:	0f 84 11 00 00 00    	je     37b <table_from_phys+0x3b>
+ 36a:	48 8b 7d e8          	mov    -0x18(%rbp),%rdi
+ 36e:	e8 00 00 00 00       	call   373 <table_from_phys+0x33>
+			36f: R_X86_64_PLT32	vmm_is_aligned_4k-0x4
+ 373:	a8 01                	test   $0x1,%al
+ 375:	0f 85 0d 00 00 00    	jne    388 <table_from_phys+0x48>
+ 37b:	48 c7 45 f8 00 00 00 	movq   $0x0,-0x8(%rbp)
+ 382:	00 
+ 383:	e9 1a 00 00 00       	jmp    3a2 <table_from_phys+0x62>
+ 388:	48 8b 45 f0          	mov    -0x10(%rbp),%rax
+ 38c:	48 8b 40 20          	mov    0x20(%rax),%rax
+ 390:	48 8b 4d f0          	mov    -0x10(%rbp),%rcx
+ 394:	48 8b 79 08          	mov    0x8(%rcx),%rdi
+ 398:	48 8b 75 e8          	mov    -0x18(%rbp),%rsi
+ 39c:	ff d0                	call   *%rax
+ 39e:	48 89 45 f8          	mov    %rax,-0x8(%rbp)
+ 3a2:	48 8b 45 f8          	mov    -0x8(%rbp),%rax
+ 3a6:	48 83 c4 20          	add    $0x20,%rsp
+ 3aa:	5d                   	pop    %rbp
+ 3ab:	c3                   	ret
+ 3ac:	0f 1f 40 00          	nopl   0x0(%rax)
+
+00000000000003b0 <get_or_alloc_next_table>:
+ 3b0:	55                   	push   %rbp
+ 3b1:	48 89 e5             	mov    %rsp,%rbp
+ 3b4:	48 83 ec 50          	sub    $0x50,%rsp
+ 3b8:	48 89 7d f0          	mov    %rdi,-0x10(%rbp)
+ 3bc:	48 89 75 e8          	mov    %rsi,-0x18(%rbp)
+ 3c0:	89 55 e4             	mov    %edx,-0x1c(%rbp)
+ 3c3:	48 89 4d d8          	mov    %rcx,-0x28(%rbp)
+ 3c7:	48 8b 45 e8          	mov    -0x18(%rbp),%rax
+ 3cb:	8b 4d e4             	mov    -0x1c(%rbp),%ecx
+ 3ce:	48 8b 04 c8          	mov    (%rax,%rcx,8),%rax
+ 3d2:	48 89 45 d0          	mov    %rax,-0x30(%rbp)
+ 3d6:	48 8b 45 d0          	mov    -0x30(%rbp),%rax
+ 3da:	48 83 e0 01          	and    $0x1,%rax
+ 3de:	48 83 f8 00          	cmp    $0x0,%rax
+ 3e2:	0f 84 71 00 00 00    	je     459 <get_or_alloc_next_table+0xa9>
+ 3e8:	48 8b 45 d0          	mov    -0x30(%rbp),%rax
+ 3ec:	48 25 80 00 00 00    	and    $0x80,%rax
+ 3f2:	48 83 f8 00          	cmp    $0x0,%rax
+ 3f6:	0f 84 0c 00 00 00    	je     408 <get_or_alloc_next_table+0x58>
+ 3fc:	c7 45 fc fd ff ff ff 	movl   $0xfffffffd,-0x4(%rbp)
+ 403:	e9 33 01 00 00       	jmp    53b <get_or_alloc_next_table+0x18b>
+ 408:	48 b8 00 f0 ff ff ff 	movabs $0xffffffffff000,%rax
+ 40f:	ff 0f 00 
+ 412:	48 23 45 d0          	and    -0x30(%rbp),%rax
+ 416:	48 89 45 c8          	mov    %rax,-0x38(%rbp)
+ 41a:	48 8b 7d f0          	mov    -0x10(%rbp),%rdi
+ 41e:	48 8b 75 c8          	mov    -0x38(%rbp),%rsi
+ 422:	e8 19 ff ff ff       	call   340 <table_from_phys>
+ 427:	48 89 45 c0          	mov    %rax,-0x40(%rbp)
+ 42b:	48 83 7d c0 00       	cmpq   $0x0,-0x40(%rbp)
+ 430:	0f 85 0c 00 00 00    	jne    442 <get_or_alloc_next_table+0x92>
+ 436:	c7 45 fc ff ff ff ff 	movl   $0xffffffff,-0x4(%rbp)
+ 43d:	e9 f9 00 00 00       	jmp    53b <get_or_alloc_next_table+0x18b>
+ 442:	48 8b 4d c0          	mov    -0x40(%rbp),%rcx
+ 446:	48 8b 45 d8          	mov    -0x28(%rbp),%rax
+ 44a:	48 89 08             	mov    %rcx,(%rax)
+ 44d:	c7 45 fc 00 00 00 00 	movl   $0x0,-0x4(%rbp)
+ 454:	e9 e2 00 00 00       	jmp    53b <get_or_alloc_next_table+0x18b>
+ 459:	48 8b 45 f0          	mov    -0x10(%rbp),%rax
+ 45d:	48 83 78 10 00       	cmpq   $0x0,0x10(%rax)
+ 462:	0f 85 0c 00 00 00    	jne    474 <get_or_alloc_next_table+0xc4>
+ 468:	c7 45 fc fe ff ff ff 	movl   $0xfffffffe,-0x4(%rbp)
+ 46f:	e9 c7 00 00 00       	jmp    53b <get_or_alloc_next_table+0x18b>
+ 474:	48 8b 45 f0          	mov    -0x10(%rbp),%rax
+ 478:	48 8b 40 10          	mov    0x10(%rax),%rax
+ 47c:	48 8b 4d f0          	mov    -0x10(%rbp),%rcx
+ 480:	48 8b 79 08          	mov    0x8(%rcx),%rdi
+ 484:	ff d0                	call   *%rax
+ 486:	48 89 45 b8          	mov    %rax,-0x48(%rbp)
+ 48a:	48 83 7d b8 ff       	cmpq   $0xffffffffffffffff,-0x48(%rbp)
+ 48f:	0f 84 11 00 00 00    	je     4a6 <get_or_alloc_next_table+0xf6>
+ 495:	48 8b 7d b8          	mov    -0x48(%rbp),%rdi
+ 499:	e8 00 00 00 00       	call   49e <get_or_alloc_next_table+0xee>
+			49a: R_X86_64_PLT32	vmm_is_aligned_4k-0x4
+ 49e:	a8 01                	test   $0x1,%al
+ 4a0:	0f 85 0c 00 00 00    	jne    4b2 <get_or_alloc_next_table+0x102>
+ 4a6:	c7 45 fc fe ff ff ff 	movl   $0xfffffffe,-0x4(%rbp)
+ 4ad:	e9 89 00 00 00       	jmp    53b <get_or_alloc_next_table+0x18b>
+ 4b2:	48 8b 7d f0          	mov    -0x10(%rbp),%rdi
+ 4b6:	48 8b 75 b8          	mov    -0x48(%rbp),%rsi
+ 4ba:	e8 81 fe ff ff       	call   340 <table_from_phys>
+ 4bf:	48 89 45 b0          	mov    %rax,-0x50(%rbp)
+ 4c3:	48 83 7d b0 00       	cmpq   $0x0,-0x50(%rbp)
+ 4c8:	0f 85 31 00 00 00    	jne    4ff <get_or_alloc_next_table+0x14f>
+ 4ce:	48 8b 45 f0          	mov    -0x10(%rbp),%rax
+ 4d2:	48 83 78 18 00       	cmpq   $0x0,0x18(%rax)
+ 4d7:	0f 84 16 00 00 00    	je     4f3 <get_or_alloc_next_table+0x143>
+ 4dd:	48 8b 45 f0          	mov    -0x10(%rbp),%rax
+ 4e1:	48 8b 40 18          	mov    0x18(%rax),%rax
+ 4e5:	48 8b 4d f0          	mov    -0x10(%rbp),%rcx
+ 4e9:	48 8b 79 08          	mov    0x8(%rcx),%rdi
+ 4ed:	48 8b 75 b8          	mov    -0x48(%rbp),%rsi
+ 4f1:	ff d0                	call   *%rax
+ 4f3:	c7 45 fc ff ff ff ff 	movl   $0xffffffff,-0x4(%rbp)
+ 4fa:	e9 3c 00 00 00       	jmp    53b <get_or_alloc_next_table+0x18b>
+ 4ff:	48 8b 7d b0          	mov    -0x50(%rbp),%rdi
+ 503:	e8 58 06 00 00       	call   b60 <vmm_zero_page>
+ 508:	48 ba 00 f0 ff ff ff 	movabs $0xffffffffff000,%rdx
+ 50f:	ff 0f 00 
+ 512:	48 23 55 b8          	and    -0x48(%rbp),%rdx
+ 516:	48 83 ca 01          	or     $0x1,%rdx
+ 51a:	48 83 ca 02          	or     $0x2,%rdx
+ 51e:	48 8b 45 e8          	mov    -0x18(%rbp),%rax
+ 522:	8b 4d e4             	mov    -0x1c(%rbp),%ecx
+ 525:	48 89 14 c8          	mov    %rdx,(%rax,%rcx,8)
+ 529:	48 8b 4d b0          	mov    -0x50(%rbp),%rcx
+ 52d:	48 8b 45 d8          	mov    -0x28(%rbp),%rax
+ 531:	48 89 08             	mov    %rcx,(%rax)
+ 534:	c7 45 fc 00 00 00 00 	movl   $0x0,-0x4(%rbp)
+ 53b:	8b 45 fc             	mov    -0x4(%rbp),%eax
+ 53e:	48 83 c4 50          	add    $0x50,%rsp
+ 542:	5d                   	pop    %rbp
+ 543:	c3                   	ret
+ 544:	66 66 66 2e 0f 1f 84 	data16 data16 cs nopw 0x0(%rax,%rax,1)
+ 54b:	00 00 00 00 00 
+
+0000000000000550 <idx_pml4>:
+ 550:	55                   	push   %rbp
+ 551:	48 89 e5             	mov    %rsp,%rbp
+ 554:	50                   	push   %rax
+ 555:	48 89 7d f8          	mov    %rdi,-0x8(%rbp)
+ 559:	48 8b 45 f8          	mov    -0x8(%rbp),%rax
+ 55d:	48 c1 e8 27          	shr    $0x27,%rax
+ 561:	48 25 ff 01 00 00    	and    $0x1ff,%rax
+ 567:	48 83 c4 08          	add    $0x8,%rsp
+ 56b:	5d                   	pop    %rbp
+ 56c:	c3                   	ret
+ 56d:	0f 1f 00             	nopl   (%rax)
+
+0000000000000570 <idx_pdpt>:
+ 570:	55                   	push   %rbp
+ 571:	48 89 e5             	mov    %rsp,%rbp
+ 574:	50                   	push   %rax
+ 575:	48 89 7d f8          	mov    %rdi,-0x8(%rbp)
+ 579:	48 8b 45 f8          	mov    -0x8(%rbp),%rax
+ 57d:	48 c1 e8 1e          	shr    $0x1e,%rax
+ 581:	48 25 ff 01 00 00    	and    $0x1ff,%rax
+ 587:	48 83 c4 08          	add    $0x8,%rsp
+ 58b:	5d                   	pop    %rbp
+ 58c:	c3                   	ret
+ 58d:	0f 1f 00             	nopl   (%rax)
+
+0000000000000590 <idx_pd>:
+ 590:	55                   	push   %rbp
+ 591:	48 89 e5             	mov    %rsp,%rbp
+ 594:	50                   	push   %rax
+ 595:	48 89 7d f8          	mov    %rdi,-0x8(%rbp)
+ 599:	48 8b 45 f8          	mov    -0x8(%rbp),%rax
+ 59d:	48 c1 e8 15          	shr    $0x15,%rax
+ 5a1:	48 25 ff 01 00 00    	and    $0x1ff,%rax
+ 5a7:	48 83 c4 08          	add    $0x8,%rsp
+ 5ab:	5d                   	pop    %rbp
+ 5ac:	c3                   	ret
+ 5ad:	0f 1f 00             	nopl   (%rax)
+
+00000000000005b0 <idx_pt>:
+ 5b0:	55                   	push   %rbp
+ 5b1:	48 89 e5             	mov    %rsp,%rbp
+ 5b4:	50                   	push   %rax
+ 5b5:	48 89 7d f8          	mov    %rdi,-0x8(%rbp)
+ 5b9:	48 8b 45 f8          	mov    -0x8(%rbp),%rax
+ 5bd:	48 c1 e8 0c          	shr    $0xc,%rax
+ 5c1:	48 25 ff 01 00 00    	and    $0x1ff,%rax
+ 5c7:	48 83 c4 08          	add    $0x8,%rsp
+ 5cb:	5d                   	pop    %rbp
+ 5cc:	c3                   	ret
+ 5cd:	0f 1f 00             	nopl   (%rax)
+
+00000000000005d0 <vmm_query_page>:
+ 5d0:	55                   	push   %rbp
+ 5d1:	48 89 e5             	mov    %rsp,%rbp
+ 5d4:	48 83 ec 70          	sub    $0x70,%rsp
+ 5d8:	48 89 7d f0          	mov    %rdi,-0x10(%rbp)
+ 5dc:	48 89 75 e8          	mov    %rsi,-0x18(%rbp)
+ 5e0:	48 89 55 e0          	mov    %rdx,-0x20(%rbp)
+ 5e4:	48 83 7d f0 00       	cmpq   $0x0,-0x10(%rbp)
+ 5e9:	0f 84 32 00 00 00    	je     621 <vmm_query_page+0x51>
+ 5ef:	48 83 7d e0 00       	cmpq   $0x0,-0x20(%rbp)
+ 5f4:	0f 84 27 00 00 00    	je     621 <vmm_query_page+0x51>
+ 5fa:	48 8b 7d e8          	mov    -0x18(%rbp),%rdi
+ 5fe:	e8 00 00 00 00       	call   603 <vmm_query_page+0x33>
+			5ff: R_X86_64_PLT32	vmm_is_canonical-0x4
+ 603:	a8 01                	test   $0x1,%al
+ 605:	0f 85 05 00 00 00    	jne    610 <vmm_query_page+0x40>
+ 60b:	e9 11 00 00 00       	jmp    621 <vmm_query_page+0x51>
+ 610:	48 8b 7d e8          	mov    -0x18(%rbp),%rdi
+ 614:	e8 00 00 00 00       	call   619 <vmm_query_page+0x49>
+			615: R_X86_64_PLT32	vmm_is_aligned_4k-0x4
+ 619:	a8 01                	test   $0x1,%al
+ 61b:	0f 85 0c 00 00 00    	jne    62d <vmm_query_page+0x5d>
+ 621:	c7 45 fc ff ff ff ff 	movl   $0xffffffff,-0x4(%rbp)
+ 628:	e9 37 02 00 00       	jmp    864 <vmm_query_page+0x294>
+ 62d:	48 8b 7d f0          	mov    -0x10(%rbp),%rdi
+ 631:	48 8b 45 f0          	mov    -0x10(%rbp),%rax
+ 635:	48 8b 30             	mov    (%rax),%rsi
+ 638:	e8 03 fd ff ff       	call   340 <table_from_phys>
+ 63d:	48 89 45 d8          	mov    %rax,-0x28(%rbp)
+ 641:	48 83 7d d8 00       	cmpq   $0x0,-0x28(%rbp)
+ 646:	0f 85 0c 00 00 00    	jne    658 <vmm_query_page+0x88>
+ 64c:	c7 45 fc ff ff ff ff 	movl   $0xffffffff,-0x4(%rbp)
+ 653:	e9 0c 02 00 00       	jmp    864 <vmm_query_page+0x294>
+ 658:	48 8b 45 d8          	mov    -0x28(%rbp),%rax
+ 65c:	48 89 45 b0          	mov    %rax,-0x50(%rbp)
+ 660:	48 8b 7d e8          	mov    -0x18(%rbp),%rdi
+ 664:	e8 e7 fe ff ff       	call   550 <idx_pml4>
+ 669:	89 c1                	mov    %eax,%ecx
+ 66b:	48 8b 45 b0          	mov    -0x50(%rbp),%rax
+ 66f:	89 c9                	mov    %ecx,%ecx
+ 671:	48 8b 04 c8          	mov    (%rax,%rcx,8),%rax
+ 675:	48 89 45 d0          	mov    %rax,-0x30(%rbp)
+ 679:	48 8b 45 d0          	mov    -0x30(%rbp),%rax
+ 67d:	48 83 e0 01          	and    $0x1,%rax
+ 681:	48 83 f8 00          	cmp    $0x0,%rax
+ 685:	0f 84 14 00 00 00    	je     69f <vmm_query_page+0xcf>
+ 68b:	48 8b 45 d0          	mov    -0x30(%rbp),%rax
+ 68f:	48 25 80 00 00 00    	and    $0x80,%rax
+ 695:	48 83 f8 00          	cmp    $0x0,%rax
+ 699:	0f 84 0c 00 00 00    	je     6ab <vmm_query_page+0xdb>
+ 69f:	c7 45 fc fc ff ff ff 	movl   $0xfffffffc,-0x4(%rbp)
+ 6a6:	e9 b9 01 00 00       	jmp    864 <vmm_query_page+0x294>
+ 6ab:	48 8b 7d f0          	mov    -0x10(%rbp),%rdi
+ 6af:	48 be 00 f0 ff ff ff 	movabs $0xffffffffff000,%rsi
+ 6b6:	ff 0f 00 
+ 6b9:	48 23 75 d0          	and    -0x30(%rbp),%rsi
+ 6bd:	e8 7e fc ff ff       	call   340 <table_from_phys>
+ 6c2:	48 89 45 c8          	mov    %rax,-0x38(%rbp)
+ 6c6:	48 83 7d c8 00       	cmpq   $0x0,-0x38(%rbp)
+ 6cb:	0f 85 0c 00 00 00    	jne    6dd <vmm_query_page+0x10d>
+ 6d1:	c7 45 fc ff ff ff ff 	movl   $0xffffffff,-0x4(%rbp)
+ 6d8:	e9 87 01 00 00       	jmp    864 <vmm_query_page+0x294>
+ 6dd:	48 8b 45 c8          	mov    -0x38(%rbp),%rax
+ 6e1:	48 89 45 a8          	mov    %rax,-0x58(%rbp)
+ 6e5:	48 8b 7d e8          	mov    -0x18(%rbp),%rdi
+ 6e9:	e8 82 fe ff ff       	call   570 <idx_pdpt>
+ 6ee:	89 c1                	mov    %eax,%ecx
+ 6f0:	48 8b 45 a8          	mov    -0x58(%rbp),%rax
+ 6f4:	89 c9                	mov    %ecx,%ecx
+ 6f6:	48 8b 04 c8          	mov    (%rax,%rcx,8),%rax
+ 6fa:	48 89 45 d0          	mov    %rax,-0x30(%rbp)
+ 6fe:	48 8b 45 d0          	mov    -0x30(%rbp),%rax
+ 702:	48 83 e0 01          	and    $0x1,%rax
+ 706:	48 83 f8 00          	cmp    $0x0,%rax
+ 70a:	0f 84 14 00 00 00    	je     724 <vmm_query_page+0x154>
+ 710:	48 8b 45 d0          	mov    -0x30(%rbp),%rax
+ 714:	48 25 80 00 00 00    	and    $0x80,%rax
+ 71a:	48 83 f8 00          	cmp    $0x0,%rax
+ 71e:	0f 84 0c 00 00 00    	je     730 <vmm_query_page+0x160>
+ 724:	c7 45 fc fc ff ff ff 	movl   $0xfffffffc,-0x4(%rbp)
+ 72b:	e9 34 01 00 00       	jmp    864 <vmm_query_page+0x294>
+ 730:	48 8b 7d f0          	mov    -0x10(%rbp),%rdi
+ 734:	48 be 00 f0 ff ff ff 	movabs $0xffffffffff000,%rsi
+ 73b:	ff 0f 00 
+ 73e:	48 23 75 d0          	and    -0x30(%rbp),%rsi
+ 742:	e8 f9 fb ff ff       	call   340 <table_from_phys>
+ 747:	48 89 45 c0          	mov    %rax,-0x40(%rbp)
+ 74b:	48 83 7d c0 00       	cmpq   $0x0,-0x40(%rbp)
+ 750:	0f 85 0c 00 00 00    	jne    762 <vmm_query_page+0x192>
+ 756:	c7 45 fc ff ff ff ff 	movl   $0xffffffff,-0x4(%rbp)
+ 75d:	e9 02 01 00 00       	jmp    864 <vmm_query_page+0x294>
+ 762:	48 8b 45 c0          	mov    -0x40(%rbp),%rax
+ 766:	48 89 45 a0          	mov    %rax,-0x60(%rbp)
+ 76a:	48 8b 7d e8          	mov    -0x18(%rbp),%rdi
+ 76e:	e8 1d fe ff ff       	call   590 <idx_pd>
+ 773:	89 c1                	mov    %eax,%ecx
+ 775:	48 8b 45 a0          	mov    -0x60(%rbp),%rax
+ 779:	89 c9                	mov    %ecx,%ecx
+ 77b:	48 8b 04 c8          	mov    (%rax,%rcx,8),%rax
+ 77f:	48 89 45 d0          	mov    %rax,-0x30(%rbp)
+ 783:	48 8b 45 d0          	mov    -0x30(%rbp),%rax
+ 787:	48 83 e0 01          	and    $0x1,%rax
+ 78b:	48 83 f8 00          	cmp    $0x0,%rax
+ 78f:	0f 84 14 00 00 00    	je     7a9 <vmm_query_page+0x1d9>
+ 795:	48 8b 45 d0          	mov    -0x30(%rbp),%rax
+ 799:	48 25 80 00 00 00    	and    $0x80,%rax
+ 79f:	48 83 f8 00          	cmp    $0x0,%rax
+ 7a3:	0f 84 0c 00 00 00    	je     7b5 <vmm_query_page+0x1e5>
+ 7a9:	c7 45 fc fc ff ff ff 	movl   $0xfffffffc,-0x4(%rbp)
+ 7b0:	e9 af 00 00 00       	jmp    864 <vmm_query_page+0x294>
+ 7b5:	48 8b 7d f0          	mov    -0x10(%rbp),%rdi
+ 7b9:	48 be 00 f0 ff ff ff 	movabs $0xffffffffff000,%rsi
+ 7c0:	ff 0f 00 
+ 7c3:	48 23 75 d0          	and    -0x30(%rbp),%rsi
+ 7c7:	e8 74 fb ff ff       	call   340 <table_from_phys>
+ 7cc:	48 89 45 b8          	mov    %rax,-0x48(%rbp)
+ 7d0:	48 83 7d b8 00       	cmpq   $0x0,-0x48(%rbp)
+ 7d5:	0f 85 0c 00 00 00    	jne    7e7 <vmm_query_page+0x217>
+ 7db:	c7 45 fc ff ff ff ff 	movl   $0xffffffff,-0x4(%rbp)
+ 7e2:	e9 7d 00 00 00       	jmp    864 <vmm_query_page+0x294>
+ 7e7:	48 8b 45 b8          	mov    -0x48(%rbp),%rax
+ 7eb:	48 89 45 98          	mov    %rax,-0x68(%rbp)
+ 7ef:	48 8b 7d e8          	mov    -0x18(%rbp),%rdi
+ 7f3:	e8 b8 fd ff ff       	call   5b0 <idx_pt>
+ 7f8:	89 c1                	mov    %eax,%ecx
+ 7fa:	48 8b 45 98          	mov    -0x68(%rbp),%rax
+ 7fe:	89 c9                	mov    %ecx,%ecx
+ 800:	48 8b 04 c8          	mov    (%rax,%rcx,8),%rax
+ 804:	48 89 45 d0          	mov    %rax,-0x30(%rbp)
+ 808:	48 8b 45 d0          	mov    -0x30(%rbp),%rax
+ 80c:	48 83 e0 01          	and    $0x1,%rax
+ 810:	48 83 f8 00          	cmp    $0x0,%rax
+ 814:	0f 85 0c 00 00 00    	jne    826 <vmm_query_page+0x256>
+ 81a:	c7 45 fc fc ff ff ff 	movl   $0xfffffffc,-0x4(%rbp)
+ 821:	e9 3e 00 00 00       	jmp    864 <vmm_query_page+0x294>
+ 826:	48 8b 4d e8          	mov    -0x18(%rbp),%rcx
+ 82a:	48 8b 45 e0          	mov    -0x20(%rbp),%rax
+ 82e:	48 89 08             	mov    %rcx,(%rax)
+ 831:	48 b9 00 f0 ff ff ff 	movabs $0xffffffffff000,%rcx
+ 838:	ff 0f 00 
+ 83b:	48 23 4d d0          	and    -0x30(%rbp),%rcx
+ 83f:	48 8b 45 e0          	mov    -0x20(%rbp),%rax
+ 843:	48 89 48 08          	mov    %rcx,0x8(%rax)
+ 847:	48 b9 ff 0f 00 00 00 	movabs $0xfff0000000000fff,%rcx
+ 84e:	00 f0 ff 
+ 851:	48 23 4d d0          	and    -0x30(%rbp),%rcx
+ 855:	48 8b 45 e0          	mov    -0x20(%rbp),%rax
+ 859:	48 89 48 10          	mov    %rcx,0x10(%rax)
+ 85d:	c7 45 fc 00 00 00 00 	movl   $0x0,-0x4(%rbp)
+ 864:	8b 45 fc             	mov    -0x4(%rbp),%eax
+ 867:	48 83 c4 70          	add    $0x70,%rsp
+ 86b:	5d                   	pop    %rbp
+ 86c:	c3                   	ret
+ 86d:	0f 1f 00             	nopl   (%rax)
+
+0000000000000870 <vmm_unmap_page>:
+ 870:	55                   	push   %rbp
+ 871:	48 89 e5             	mov    %rsp,%rbp
+ 874:	48 83 ec 60          	sub    $0x60,%rsp
+ 878:	48 89 7d f0          	mov    %rdi,-0x10(%rbp)
+ 87c:	48 89 75 e8          	mov    %rsi,-0x18(%rbp)
+ 880:	48 83 7d f0 00       	cmpq   $0x0,-0x10(%rbp)
+ 885:	0f 84 27 00 00 00    	je     8b2 <vmm_unmap_page+0x42>
+ 88b:	48 8b 7d e8          	mov    -0x18(%rbp),%rdi
+ 88f:	e8 00 00 00 00       	call   894 <vmm_unmap_page+0x24>
+			890: R_X86_64_PLT32	vmm_is_canonical-0x4
+ 894:	a8 01                	test   $0x1,%al
+ 896:	0f 85 05 00 00 00    	jne    8a1 <vmm_unmap_page+0x31>
+ 89c:	e9 11 00 00 00       	jmp    8b2 <vmm_unmap_page+0x42>
+ 8a1:	48 8b 7d e8          	mov    -0x18(%rbp),%rdi
+ 8a5:	e8 00 00 00 00       	call   8aa <vmm_unmap_page+0x3a>
+			8a6: R_X86_64_PLT32	vmm_is_aligned_4k-0x4
+ 8aa:	a8 01                	test   $0x1,%al
+ 8ac:	0f 85 0c 00 00 00    	jne    8be <vmm_unmap_page+0x4e>
+ 8b2:	c7 45 fc ff ff ff ff 	movl   $0xffffffff,-0x4(%rbp)
+ 8b9:	e9 0a 02 00 00       	jmp    ac8 <vmm_unmap_page+0x258>
+ 8be:	48 8b 7d f0          	mov    -0x10(%rbp),%rdi
+ 8c2:	48 8b 45 f0          	mov    -0x10(%rbp),%rax
+ 8c6:	48 8b 30             	mov    (%rax),%rsi
+ 8c9:	e8 72 fa ff ff       	call   340 <table_from_phys>
+ 8ce:	48 89 45 e0          	mov    %rax,-0x20(%rbp)
+ 8d2:	48 83 7d e0 00       	cmpq   $0x0,-0x20(%rbp)
+ 8d7:	0f 85 0c 00 00 00    	jne    8e9 <vmm_unmap_page+0x79>
+ 8dd:	c7 45 fc ff ff ff ff 	movl   $0xffffffff,-0x4(%rbp)
+ 8e4:	e9 df 01 00 00       	jmp    ac8 <vmm_unmap_page+0x258>
+ 8e9:	48 8b 45 e0          	mov    -0x20(%rbp),%rax
+ 8ed:	48 89 45 b0          	mov    %rax,-0x50(%rbp)
+ 8f1:	48 8b 7d e8          	mov    -0x18(%rbp),%rdi
+ 8f5:	e8 56 fc ff ff       	call   550 <idx_pml4>
+ 8fa:	89 c1                	mov    %eax,%ecx
+ 8fc:	48 8b 45 b0          	mov    -0x50(%rbp),%rax
+ 900:	89 c9                	mov    %ecx,%ecx
+ 902:	48 8b 04 c8          	mov    (%rax,%rcx,8),%rax
+ 906:	48 89 45 d8          	mov    %rax,-0x28(%rbp)
+ 90a:	48 8b 45 d8          	mov    -0x28(%rbp),%rax
+ 90e:	48 83 e0 01          	and    $0x1,%rax
+ 912:	48 83 f8 00          	cmp    $0x0,%rax
+ 916:	0f 84 14 00 00 00    	je     930 <vmm_unmap_page+0xc0>
+ 91c:	48 8b 45 d8          	mov    -0x28(%rbp),%rax
+ 920:	48 25 80 00 00 00    	and    $0x80,%rax
+ 926:	48 83 f8 00          	cmp    $0x0,%rax
+ 92a:	0f 84 0c 00 00 00    	je     93c <vmm_unmap_page+0xcc>
+ 930:	c7 45 fc fc ff ff ff 	movl   $0xfffffffc,-0x4(%rbp)
+ 937:	e9 8c 01 00 00       	jmp    ac8 <vmm_unmap_page+0x258>
+ 93c:	48 8b 7d f0          	mov    -0x10(%rbp),%rdi
+ 940:	48 be 00 f0 ff ff ff 	movabs $0xffffffffff000,%rsi
+ 947:	ff 0f 00 
+ 94a:	48 23 75 d8          	and    -0x28(%rbp),%rsi
+ 94e:	e8 ed f9 ff ff       	call   340 <table_from_phys>
+ 953:	48 89 45 d0          	mov    %rax,-0x30(%rbp)
+ 957:	48 83 7d d0 00       	cmpq   $0x0,-0x30(%rbp)
+ 95c:	0f 85 0c 00 00 00    	jne    96e <vmm_unmap_page+0xfe>
+ 962:	c7 45 fc ff ff ff ff 	movl   $0xffffffff,-0x4(%rbp)
+ 969:	e9 5a 01 00 00       	jmp    ac8 <vmm_unmap_page+0x258>
+ 96e:	48 8b 45 d0          	mov    -0x30(%rbp),%rax
+ 972:	48 89 45 a8          	mov    %rax,-0x58(%rbp)
+ 976:	48 8b 7d e8          	mov    -0x18(%rbp),%rdi
+ 97a:	e8 f1 fb ff ff       	call   570 <idx_pdpt>
+ 97f:	89 c1                	mov    %eax,%ecx
+ 981:	48 8b 45 a8          	mov    -0x58(%rbp),%rax
+ 985:	89 c9                	mov    %ecx,%ecx
+ 987:	48 8b 04 c8          	mov    (%rax,%rcx,8),%rax
+ 98b:	48 89 45 d8          	mov    %rax,-0x28(%rbp)
+ 98f:	48 8b 45 d8          	mov    -0x28(%rbp),%rax
+ 993:	48 83 e0 01          	and    $0x1,%rax
+ 997:	48 83 f8 00          	cmp    $0x0,%rax
+ 99b:	0f 84 14 00 00 00    	je     9b5 <vmm_unmap_page+0x145>
+ 9a1:	48 8b 45 d8          	mov    -0x28(%rbp),%rax
+ 9a5:	48 25 80 00 00 00    	and    $0x80,%rax
+ 9ab:	48 83 f8 00          	cmp    $0x0,%rax
+ 9af:	0f 84 0c 00 00 00    	je     9c1 <vmm_unmap_page+0x151>
+ 9b5:	c7 45 fc fc ff ff ff 	movl   $0xfffffffc,-0x4(%rbp)
+ 9bc:	e9 07 01 00 00       	jmp    ac8 <vmm_unmap_page+0x258>
+ 9c1:	48 8b 7d f0          	mov    -0x10(%rbp),%rdi
+ 9c5:	48 be 00 f0 ff ff ff 	movabs $0xffffffffff000,%rsi
+ 9cc:	ff 0f 00 
+ 9cf:	48 23 75 d8          	and    -0x28(%rbp),%rsi
+ 9d3:	e8 68 f9 ff ff       	call   340 <table_from_phys>
+ 9d8:	48 89 45 c8          	mov    %rax,-0x38(%rbp)
+ 9dc:	48 83 7d c8 00       	cmpq   $0x0,-0x38(%rbp)
+ 9e1:	0f 85 0c 00 00 00    	jne    9f3 <vmm_unmap_page+0x183>
+ 9e7:	c7 45 fc ff ff ff ff 	movl   $0xffffffff,-0x4(%rbp)
+ 9ee:	e9 d5 00 00 00       	jmp    ac8 <vmm_unmap_page+0x258>
+ 9f3:	48 8b 45 c8          	mov    -0x38(%rbp),%rax
+ 9f7:	48 89 45 a0          	mov    %rax,-0x60(%rbp)
+ 9fb:	48 8b 7d e8          	mov    -0x18(%rbp),%rdi
+ 9ff:	e8 8c fb ff ff       	call   590 <idx_pd>
+ a04:	89 c1                	mov    %eax,%ecx
+ a06:	48 8b 45 a0          	mov    -0x60(%rbp),%rax
+ a0a:	89 c9                	mov    %ecx,%ecx
+ a0c:	48 8b 04 c8          	mov    (%rax,%rcx,8),%rax
+ a10:	48 89 45 d8          	mov    %rax,-0x28(%rbp)
+ a14:	48 8b 45 d8          	mov    -0x28(%rbp),%rax
+ a18:	48 83 e0 01          	and    $0x1,%rax
+ a1c:	48 83 f8 00          	cmp    $0x0,%rax
+ a20:	0f 84 14 00 00 00    	je     a3a <vmm_unmap_page+0x1ca>
+ a26:	48 8b 45 d8          	mov    -0x28(%rbp),%rax
+ a2a:	48 25 80 00 00 00    	and    $0x80,%rax
+ a30:	48 83 f8 00          	cmp    $0x0,%rax
+ a34:	0f 84 0c 00 00 00    	je     a46 <vmm_unmap_page+0x1d6>
+ a3a:	c7 45 fc fc ff ff ff 	movl   $0xfffffffc,-0x4(%rbp)
+ a41:	e9 82 00 00 00       	jmp    ac8 <vmm_unmap_page+0x258>
+ a46:	48 8b 7d f0          	mov    -0x10(%rbp),%rdi
+ a4a:	48 be 00 f0 ff ff ff 	movabs $0xffffffffff000,%rsi
+ a51:	ff 0f 00 
+ a54:	48 23 75 d8          	and    -0x28(%rbp),%rsi
+ a58:	e8 e3 f8 ff ff       	call   340 <table_from_phys>
+ a5d:	48 89 45 c0          	mov    %rax,-0x40(%rbp)
+ a61:	48 83 7d c0 00       	cmpq   $0x0,-0x40(%rbp)
+ a66:	0f 85 0c 00 00 00    	jne    a78 <vmm_unmap_page+0x208>
+ a6c:	c7 45 fc ff ff ff ff 	movl   $0xffffffff,-0x4(%rbp)
+ a73:	e9 50 00 00 00       	jmp    ac8 <vmm_unmap_page+0x258>
+ a78:	48 8b 7d e8          	mov    -0x18(%rbp),%rdi
+ a7c:	e8 2f fb ff ff       	call   5b0 <idx_pt>
+ a81:	89 45 bc             	mov    %eax,-0x44(%rbp)
+ a84:	48 8b 45 c0          	mov    -0x40(%rbp),%rax
+ a88:	8b 4d bc             	mov    -0x44(%rbp),%ecx
+ a8b:	48 8b 04 c8          	mov    (%rax,%rcx,8),%rax
+ a8f:	48 83 e0 01          	and    $0x1,%rax
+ a93:	48 83 f8 00          	cmp    $0x0,%rax
+ a97:	0f 85 0c 00 00 00    	jne    aa9 <vmm_unmap_page+0x239>
+ a9d:	c7 45 fc fc ff ff ff 	movl   $0xfffffffc,-0x4(%rbp)
+ aa4:	e9 1f 00 00 00       	jmp    ac8 <vmm_unmap_page+0x258>
+ aa9:	48 8b 45 c0          	mov    -0x40(%rbp),%rax
+ aad:	8b 4d bc             	mov    -0x44(%rbp),%ecx
+ ab0:	48 c7 04 c8 00 00 00 	movq   $0x0,(%rax,%rcx,8)
+ ab7:	00 
+ ab8:	48 8b 7d e8          	mov    -0x18(%rbp),%rdi
+ abc:	e8 00 00 00 00       	call   ac1 <vmm_unmap_page+0x251>
+			abd: R_X86_64_PLT32	vmm_invalidate_page-0x4
+ ac1:	c7 45 fc 00 00 00 00 	movl   $0x0,-0x4(%rbp)
+ ac8:	8b 45 fc             	mov    -0x4(%rbp),%eax
+ acb:	48 83 c4 60          	add    $0x60,%rsp
+ acf:	5d                   	pop    %rbp
+ ad0:	c3                   	ret
+ ad1:	66 66 66 66 66 66 2e 	data16 data16 data16 data16 data16 cs nopw 0x0(%rax,%rax,1)
+ ad8:	0f 1f 84 00 00 00 00 
+ adf:	00 
+
+0000000000000ae0 <vmm_invalidate_page>:
+ ae0:	55                   	push   %rbp
+ ae1:	48 89 e5             	mov    %rsp,%rbp
+ ae4:	50                   	push   %rax
+ ae5:	48 89 7d f8          	mov    %rdi,-0x8(%rbp)
+ ae9:	48 8b 45 f8          	mov    -0x8(%rbp),%rax
+ aed:	0f 01 38             	invlpg (%rax)
+ af0:	48 83 c4 08          	add    $0x8,%rsp
+ af4:	5d                   	pop    %rbp
+ af5:	c3                   	ret
+ af6:	66 2e 0f 1f 84 00 00 	cs nopw 0x0(%rax,%rax,1)
+ afd:	00 00 00 
+
+0000000000000b00 <vmm_read_cr3>:
+ b00:	55                   	push   %rbp
+ b01:	48 89 e5             	mov    %rsp,%rbp
+ b04:	50                   	push   %rax
+ b05:	0f 20 d8             	mov    %cr3,%rax
+ b08:	48 89 45 f8          	mov    %rax,-0x8(%rbp)
+ b0c:	48 8b 45 f8          	mov    -0x8(%rbp),%rax
+ b10:	48 83 c4 08          	add    $0x8,%rsp
+ b14:	5d                   	pop    %rbp
+ b15:	c3                   	ret
+ b16:	66 2e 0f 1f 84 00 00 	cs nopw 0x0(%rax,%rax,1)
+ b1d:	00 00 00 
+
+0000000000000b20 <vmm_write_cr3>:
+ b20:	55                   	push   %rbp
+ b21:	48 89 e5             	mov    %rsp,%rbp
+ b24:	50                   	push   %rax
+ b25:	48 89 7d f8          	mov    %rdi,-0x8(%rbp)
+ b29:	48 8b 45 f8          	mov    -0x8(%rbp),%rax
+ b2d:	0f 22 d8             	mov    %rax,%cr3
+ b30:	48 83 c4 08          	add    $0x8,%rsp
+ b34:	5d                   	pop    %rbp
+ b35:	c3                   	ret
+ b36:	66 2e 0f 1f 84 00 00 	cs nopw 0x0(%rax,%rax,1)
+ b3d:	00 00 00 
+
+0000000000000b40 <vmm_read_cr2>:
+ b40:	55                   	push   %rbp
+ b41:	48 89 e5             	mov    %rsp,%rbp
+ b44:	50                   	push   %rax
+ b45:	0f 20 d0             	mov    %cr2,%rax
+ b48:	48 89 45 f8          	mov    %rax,-0x8(%rbp)
+ b4c:	48 8b 45 f8          	mov    -0x8(%rbp),%rax
+ b50:	48 83 c4 08          	add    $0x8,%rsp
+ b54:	5d                   	pop    %rbp
+ b55:	c3                   	ret
+ b56:	66 2e 0f 1f 84 00 00 	cs nopw 0x0(%rax,%rax,1)
+ b5d:	00 00 00 
+
+0000000000000b60 <vmm_zero_page>:
+ b60:	55                   	push   %rbp
+ b61:	48 89 e5             	mov    %rsp,%rbp
+ b64:	48 83 ec 10          	sub    $0x10,%rsp
+ b68:	48 89 7d f8          	mov    %rdi,-0x8(%rbp)
+ b6c:	48 c7 45 f0 00 00 00 	movq   $0x0,-0x10(%rbp)
+ b73:	00 
+ b74:	48 81 7d f0 00 02 00 	cmpq   $0x200,-0x10(%rbp)
+ b7b:	00 
+ b7c:	0f 83 21 00 00 00    	jae    ba3 <vmm_zero_page+0x43>
+ b82:	48 8b 45 f8          	mov    -0x8(%rbp),%rax
+ b86:	48 8b 4d f0          	mov    -0x10(%rbp),%rcx
+ b8a:	48 c7 04 c8 00 00 00 	movq   $0x0,(%rax,%rcx,8)
+ b91:	00 
+ b92:	48 8b 45 f0          	mov    -0x10(%rbp),%rax
+ b96:	48 83 c0 01          	add    $0x1,%rax
+ b9a:	48 89 45 f0          	mov    %rax,-0x10(%rbp)
+ b9e:	e9 d1 ff ff ff       	jmp    b74 <vmm_zero_page+0x14>
+ ba3:	48 83 c4 10          	add    $0x10,%rsp
+ ba7:	5d                   	pop    %rbp
+ ba8:	c3                   	ret
