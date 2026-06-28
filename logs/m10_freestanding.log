@@ -1,0 +1,6 @@
+mkdir -p build
+clang --target=x86_64-unknown-none-elf -std=c17 -ffreestanding -fno-builtin -fno-stack-protector -fno-stack-check -fno-pic -fno-pie -fno-lto -m64 -march=x86-64 -mabi=sysv -mno-red-zone -mno-mmx -mno-sse -mno-sse2 -mcmodel=kernel -Wall -Wextra -Werror -Ikernel/arch/x86_64/include -Ikernel/include -Ilimine -Iinclude -c kernel/syscall/syscall.c -o build/m10_syscall.o
+mkdir -p build
+clang --target=x86_64-unknown-none-elf -ffreestanding -fno-pic -fno-pie -m64 -mno-red-zone -Wall -Wextra -Werror -Ikernel/arch/x86_64/include -Ikernel/include -Ilimine -Iinclude -c kernel/syscall/syscall_entry.S \
+    -o build/m10_syscall_entry.o
+ld.lld -r build/m10_syscall.o build/m10_syscall_entry.o -o build/m10_syscall_combined.o

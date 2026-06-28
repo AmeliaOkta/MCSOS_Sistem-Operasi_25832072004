@@ -1,0 +1,7 @@
+mkdir -p build
+cc -std=c17 -Wall -Wextra -Werror -Iinclude -Ikernel/include -Ikernel/arch/x86_64/include \
+    tests/test_syscall_host.c \
+    kernel/syscall/syscall.c \
+    -o build/test_syscall_host
+./build/test_syscall_host
+M10 syscall host tests passed

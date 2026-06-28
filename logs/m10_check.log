@@ -1,0 +1,13 @@
+./build/test_syscall_host
+M10 syscall host tests passed
+nm -u build/m10_syscall_combined.o > build/m10_nm_undefined.txt
+test ! -s build/m10_nm_undefined.txt
+readelf -h build/m10_syscall_combined.o > build/m10_readelf_header.txt
+objdump -dr build/m10_syscall_combined.o > build/m10_objdump.txt
+grep -q 'Machine:.*Advanced Micro Devices X86-64' build/m10_readelf_header.txt
+grep -q 'x86_64_syscall_int80_stub' build/m10_objdump.txt
+grep -q 'iretq' build/m10_objdump.txt
+sha256sum build/test_syscall_host build/m10_syscall_combined.o \
+    > build/m10_SHA256SUMS
+echo "[PASS] M10 check selesai"
+[PASS] M10 check selesai
