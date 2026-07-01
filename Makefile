@@ -49,6 +49,7 @@ COMMON_CFLAGS := \
     -Ikernel/arch/x86_64/include \
     -Ikernel/include \
     -Ilimine \
+    -Iinclude/mcsos/user \
     -Iinclude
 
 COMMON_ASFLAGS := \
@@ -405,3 +406,43 @@ m10-audit: build/m10_syscall_combined.o
 m10-clean:
 >rm -f build/test_syscall_host build/m10_syscall.o build/m10_syscall_entry.o build/m10_syscall_combined.o build/m10_nm_undefined.txt build/m10_readelf_header.txt build/m10_objdump.txt build/m10_SHA256SUMS
 
+
+
+# ── M11 ELF64 User Program Loader ───────────────────────────────────────────
+.PHONY: check-m11 m11-host-test m11-freestanding m11-audit m11-all m11-clean
+
+M11_HOST_CFLAGS := -std=c17 -Wall -Wextra -Werror -Iinclude/mcsos/user -Iinclude -Ikernel/include -Ikernel/arch/x86_64/include
+
+build/test_m11_elf_loader_host: tests/m11/m11_host_test.c kernel/user/m11_elf_loader.c include/mcsos/user/m11_elf_loader.h
+>mkdir -p build
+>$(HOSTCC) $(M11_HOST_CFLAGS) tests/m11/m11_host_test.c kernel/user/m11_elf_loader.c -o build/test_m11_elf_loader_host
+
+build/m11_elf_loader.o: kernel/user/m11_elf_loader.c include/mcsos/user/m11_elf_loader.h
+>mkdir -p build
+>$(CC) $(COMMON_CFLAGS) -Iinclude/mcsos/user -c kernel/user/m11_elf_loader.c -o build/m11_elf_loader.o
+
+check-m11: build/test_m11_elf_loader_host build/m11_elf_loader.o
+>./build/test_m11_elf_loader_host
+>$(NM) -u build/m11_elf_loader.o > build/m11_nm_undefined.txt
+>test ! -s build/m11_nm_undefined.txt
+>$(READELF) -h build/m11_elf_loader.o > build/m11_readelf_header.txt
+>$(OBJDUMP) -dr build/m11_elf_loader.o > build/m11_objdump.txt
+>grep -q 'ELF64' build/m11_readelf_header.txt
+>grep -q 'm11_elf64_plan_load' build/m11_objdump.txt
+>sha256sum build/m11_elf_loader.o kernel/user/m11_elf_loader.c include/mcsos/user/m11_elf_loader.h tests/m11/m11_host_test.c > build/m11_SHA256SUMS
+>echo "[PASS] M11 check selesai"
+
+m11-host-test: build/test_m11_elf_loader_host
+>./build/test_m11_elf_loader_host
+
+m11-freestanding: build/m11_elf_loader.o
+
+m11-audit: build/m11_elf_loader.o
+>$(NM) -u build/m11_elf_loader.o
+>$(READELF) -h build/m11_elf_loader.o
+>$(OBJDUMP) -dr build/m11_elf_loader.o | grep -E 'm11_elf64_plan_load'
+
+m11-all: check-m11
+
+m11-clean:
+>rm -f build/test_m11_elf_loader_host build/m11_elf_loader.o build/m11_nm_undefined.txt build/m11_readelf_header.txt build/m11_objdump.txt build/m11_SHA256SUMS

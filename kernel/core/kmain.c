@@ -7,6 +7,7 @@
 #include "pmm.h"
 #include "vmm.h"
 #include "mcsos_thread.h"
+#include "m11_elf_loader.h"
 #include "mcsos/syscall.h"
 #include "mcsos/arch/idt.h"
 #include "mcsos/arch/pit.h"
@@ -44,6 +45,7 @@ static struct vmm_space kernel_vmm;
 static uint64_t         kernel_hhdm_offset;
 
 static void m8_heap_bootstrap(void);
+static void kernel_m11_loader_smoke(void);
 
 /* ── External symbols dari M4/M5 ───────────────────────────────────────── */
 extern void x86_64_idt_init(void);
@@ -294,6 +296,88 @@ static void kernel_m10_syscall_init(void) {
     log_writeln("[M10] syscall get_ticks ok");
     log_writeln("[M10] syscall smoke done");
 }
+
+/* ── M11: ELF loader integration smoke (konservatif) ───────────────────────
+ * Bukan eksekusi process image -- cuma bangun ELF sintetis di memori,
+ * panggil m11_elf64_plan_load, lalu cetak hasil plan ke serial log.
+ * Alokasi frame/mapping page TIDAK dilakukan di sini (Poin 9.5: plan
+ * dan eksekusi plan sengaja dipisah).
+ * ───────────────────────────────────────────────────────────────────────── */
+#define M11_DEMO_IMAGE_SIZE 12288u
+
+static void m11_build_demo_image(unsigned char image[M11_DEMO_IMAGE_SIZE]) {
+    memset(image, 0, M11_DEMO_IMAGE_SIZE);
+
+    struct m11_elf64_ehdr *eh = (struct m11_elf64_ehdr *)(void *)image;
+    eh->e_ident[0]  = M11_ELFMAG0;
+    eh->e_ident[1]  = M11_ELFMAG1;
+    eh->e_ident[2]  = M11_ELFMAG2;
+    eh->e_ident[3]  = M11_ELFMAG3;
+    eh->e_ident[4]  = M11_ELFCLASS64;
+    eh->e_ident[5]  = M11_ELFDATA2LSB;
+    eh->e_ident[6]  = M11_EV_CURRENT;
+    eh->e_type      = M11_ET_EXEC;
+    eh->e_machine   = M11_EM_X86_64;
+    eh->e_version   = M11_EV_CURRENT;
+    eh->e_entry     = 0x0000000000401000ull;
+    eh->e_phoff     = sizeof(struct m11_elf64_ehdr);
+    eh->e_ehsize    = sizeof(struct m11_elf64_ehdr);
+    eh->e_phentsize = sizeof(struct m11_elf64_phdr);
+    eh->e_phnum     = 2u;
+
+    struct m11_elf64_phdr *ph =
+        (struct m11_elf64_phdr *)(void *)(image + eh->e_phoff);
+
+    ph[0].p_type   = M11_PT_LOAD;
+    ph[0].p_flags  = M11_PF_R | M11_PF_X;
+    ph[0].p_offset = 0x1000u;
+    ph[0].p_vaddr  = 0x0000000000400000ull;
+    ph[0].p_filesz = 16u;
+    ph[0].p_memsz  = 4096u;
+    ph[0].p_align  = M11_PAGE_SIZE;
+
+    ph[1].p_type   = M11_PT_LOAD;
+    ph[1].p_flags  = M11_PF_R | M11_PF_W;
+    ph[1].p_offset = 0x2000u;
+    ph[1].p_vaddr  = 0x0000000000401000ull;
+    ph[1].p_filesz = 8u;
+    ph[1].p_memsz  = 4096u;
+    ph[1].p_align  = M11_PAGE_SIZE;
+}
+
+static void kernel_m11_loader_smoke(void) {
+    static unsigned char demo_image[M11_DEMO_IMAGE_SIZE]
+        __attribute__((aligned(16)));
+    m11_build_demo_image(demo_image);
+
+    struct m11_user_region region = {
+        .base  = 0x0000000000400000ull,
+        .limit = 0x0000800000000000ull,
+    };
+
+    struct m11_process_image_plan plan;
+    int rc = m11_elf64_plan_load(demo_image, M11_DEMO_IMAGE_SIZE, region, &plan);
+
+    if (rc != M11_OK) {
+        log_writeln("[M11] elf: plan FAILED");
+        log_writeln(m11_error_name(rc));
+        return;
+    }
+
+    log_writeln("[M11] elf: ident ok");
+    log_key_value_hex64("[M11] elf: phnum", plan.segment_count);
+
+    for (uint32_t i = 0u; i < plan.segment_count; i++) {
+        log_key_value_hex64("[M11] elf: segment vaddr",  plan.segments[i].vaddr);
+        log_key_value_hex64("[M11] elf: segment filesz", plan.segments[i].filesz);
+        log_key_value_hex64("[M11] elf: segment memsz",  plan.segments[i].memsz);
+        log_key_value_hex64("[M11] elf: segment flags",  plan.segments[i].flags);
+    }
+
+    log_key_value_hex64("[M11] elf: plan ok entry", plan.entry);
+    log_writeln("[M11] user image plan ready");
+}
+
 void kmain(void) {
     cpu_cli();
     serial_init();
@@ -326,6 +410,7 @@ void kmain(void) {
     cpu_sti();
 
     kernel_m10_syscall_init();
+    kernel_m11_loader_smoke();
     kernel_m9_scheduler_init();
     log_writeln("[M9] boot idle: hlt loop");
 

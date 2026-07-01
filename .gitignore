@@ -7,3 +7,5 @@ iso_root/
 *.o
 *.d
 third_party/limine/
+m11_host_test
+build/
