@@ -1,0 +1,56 @@
+bash tools/scripts/make_iso.sh
+'build/kernel.elf' -> 'iso_root/boot/kernel.elf'
+'configs/limine/limine.conf' -> 'iso_root/boot/limine/limine.conf'
+'third_party/limine/limine-bios.sys' -> 'iso_root/boot/limine/limine-bios.sys'
+'third_party/limine/limine-bios-cd.bin' -> 'iso_root/boot/limine/limine-bios-cd.bin'
+'third_party/limine/limine-uefi-cd.bin' -> 'iso_root/boot/limine/limine-uefi-cd.bin'
+'third_party/limine/BOOTX64.EFI' -> 'iso_root/EFI/BOOT/BOOTX64.EFI'
+'third_party/limine/BOOTIA32.EFI' -> 'iso_root/EFI/BOOT/BOOTIA32.EFI'
+xorriso 1.5.6 : RockRidge filesystem manipulator, libburnia project.
+
+Drive current: -outdev 'stdio:build/mcsos.iso'
+Media current: stdio file, overwriteable
+Media status : is blank
+Media summary: 0 sessions, 0 data blocks, 0 data,  952g free
+Added to ISO image: directory '/'='/home/user/src/mcsos/iso_root'
+xorriso : UPDATE :      15 files added in 1 seconds
+xorriso : UPDATE :      15 files added in 1 seconds
+ISO image produced: 2244 sectors
+Written to medium : 2244 sectors at LBA 0
+Writing to 'stdio:build/mcsos.iso' completed successfully.
+
+Physical block size of 512 bytes.
+Installing to GPT. Logical block size of 512 bytes.
+Secondary header at LBA 0x230f.
+Secondary header valid.
+Detected ISOHYBRID with a GUID partition table (GPT).
+Converting to MBR for improved compatibility...
+Conversion successful.
+No active partition found, some systems may not boot.
+Setting partition 1 as active to work around the issue...
+Installing to MBR.
+Stage 2 to be located at byte offset 0x200.
+Reminder: Remember to copy the limine-bios.sys file in either
+          the root, /boot, /limine, or /boot/limine directories of
+          one of the partitions on the device, or boot will fail!
+Limine BIOS stages installed successfully.
+61d02f6959924dcdd4f82e1152130f192ad6625c676688760d64534ab1fdf373  build/mcsos.iso
+OK: ISO dibuat pada build/mcsos.iso
+bash tools/scripts/run_qemu.sh 2>&1 | tee build/m6_qemu.log || true
+qemu-system-x86_64: terminating on signal 15 from pid 1977 (timeout)
+OK: QEMU serial log valid: build/qemu-serial.log
+grep -E "\[MCSOS|pmm|panic|fault" build/qemu-serial.log || true
+[01;01H[01;01H[01;01Hl[01;02Hi[01;03Hm[01;04Hi[01;05Hn[01;06He[01;07H:[01;08H [01;09HL[01;10Ho[01;11Ha[01;12Hd[01;13Hi[01;14Hn[01;15Hg[01;16H [01;17He[01;18Hx[01;19He[01;20Hc[01;21Hu[01;22Ht[01;23Ha[01;24Hb[01;25Hl[01;26He[01;27H [01;28H`[01;29Hb[01;30Ho[01;31Ho[01;32Ht[01;33H([01;34H)[01;35H:[01;36H/[01;37Hb[01;38Ho[01;39Ho[01;40Ht[01;41H/[01;42Hk[01;43He[01;44Hr[01;45Hn[01;46He[01;47Hl[01;48H.[01;49He[01;50Hl[01;51Hf[01;52H`[01;53H.[01;54H.[01;55H.[01;56H[01;01H[02;01H[MCSOS:M7] boot: memory manager bring-up start
+[MCSOS:M7] idt: loaded
+[MCSOS:M7] pic: remapped and masked
+[MCSOS:M7] pit: configured 100Hz
+[m6] pmm: initialized
+[m6] pmm: frame_count=0x0000000001000000
+[m6] pmm: free_frames=0x000000000001ce5e
+[m6] pmm: used_frames=0x0000000000fe31a2
+[m6] pmm: sample_frame=0x0000000000001000
+[m6] pmm: smoke test passed
+[MCSOS:M7] pmm: ready
+[MCSOS:M7] vmm: ready
+[MCSOS:M8] heap: ready
+[MCSOS:M7] sti: enabling interrupts

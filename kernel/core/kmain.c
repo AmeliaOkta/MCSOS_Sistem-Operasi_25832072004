@@ -3,6 +3,7 @@
 #include "mcsos/arch/pit.h"
 #include "mcsos/kernel/log.h"
 #include "mcsos/kernel/panic.h"
+#include "mcs_sync.h"
 #include "limine.h"
 #include "pmm.h"
 #include "vmm.h"
@@ -378,6 +379,29 @@ static void kernel_m11_loader_smoke(void) {
     log_writeln("[M11] user image plan ready");
 }
 
+static mcs_spinlock_t boot_stats_lock;
+static mcs_lockdep_state_t boot_lockdep;
+static uint64_t boot_counter;
+
+void m12_sync_selftest(void) {
+    mcs_lockdep_init(&boot_lockdep);
+    mcs_spin_init(&boot_stats_lock, 10u, "boot_stats");
+
+    if (mcs_lockdep_before_acquire(&boot_lockdep, 10u, "boot_stats") != MCS_SYNC_OK) {
+        KERNEL_PANIC("M12 lockdep acquire failed", 0xC12A0001u);
+    }
+
+    mcs_spin_lock(&boot_stats_lock);
+    boot_counter++;
+    mcs_spin_unlock(&boot_stats_lock);
+
+    if (mcs_lockdep_after_release(&boot_lockdep, 10u, "boot_stats") != MCS_SYNC_OK) {
+        KERNEL_PANIC("M12 lockdep release failed", 0xC12A0002u);
+    }
+
+    log_writeln("[M12] sync selftest passed");
+}
+
 void kmain(void) {
     cpu_cli();
     serial_init();
@@ -411,6 +435,7 @@ void kmain(void) {
 
     kernel_m10_syscall_init();
     kernel_m11_loader_smoke();
+    m12_sync_selftest();
     kernel_m9_scheduler_init();
     log_writeln("[M9] boot idle: hlt loop");
 

@@ -446,3 +446,32 @@ m11-all: check-m11
 
 m11-clean:
 >rm -f build/test_m11_elf_loader_host build/m11_elf_loader.o build/m11_nm_undefined.txt build/m11_readelf_header.txt build/m11_objdump.txt build/m11_SHA256SUMS
+
+# ── M12 Synchronization: spinlock, mutex, lockdep ──────────────────────────
+.PHONY: m12-clean m12-host-test m12-freestanding m12-audit m12-all
+M12_SYNC_SRCS := kernel/sync/lockdep.c kernel/sync/spinlock.c kernel/sync/mutex.c
+M12_HOST_CFLAGS := -std=c17 -Wall -Wextra -Werror -Iinclude -O2 -pthread
+
+build/m12:
+>mkdir -p build/m12
+
+m12-host-test: build/m12
+>$(HOSTCC) $(M12_HOST_CFLAGS) $(M12_SYNC_SRCS) tests/m12_sync_host_test.c -o build/m12/m12_sync_host_test
+>build/m12/m12_sync_host_test | tee build/m12/host-test.log
+
+m12-freestanding: build/m12
+>$(CC) $(COMMON_CFLAGS) -c kernel/sync/lockdep.c -o build/m12/lockdep.o
+>$(CC) $(COMMON_CFLAGS) -c kernel/sync/spinlock.c -o build/m12/spinlock.o
+>$(CC) $(COMMON_CFLAGS) -c kernel/sync/mutex.c -o build/m12/mutex.o
+
+m12-audit: m12-freestanding
+>$(NM) -u build/m12/lockdep.o build/m12/spinlock.o build/m12/mutex.o | tee build/m12/nm-undefined.txt
+>$(READELF) -h build/m12/lockdep.o | tee build/m12/readelf-lockdep.txt
+>$(OBJDUMP) -d build/m12/spinlock.o | tee build/m12/objdump-spinlock.txt
+>sha256sum build/m12/lockdep.o build/m12/spinlock.o build/m12/mutex.o build/m12/m12_sync_host_test > build/m12/sha256sums.txt
+>@! grep -q ' U ' build/m12/nm-undefined.txt
+
+m12-all: m12-host-test m12-audit
+
+m12-clean:
+>rm -f build/m12/*
