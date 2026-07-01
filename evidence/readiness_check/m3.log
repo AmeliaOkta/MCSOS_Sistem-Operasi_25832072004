@@ -1,0 +1,10 @@
+=== M3 ===
+./.git/logs/refs/remotes/origin/praktikum/m3-panic-debug-audit
+./.git/logs/refs/heads/praktikum/m3-panic-debug-audit
+./.git/refs/remotes/origin/praktikum/m3-panic-debug-audit
+./.git/refs/heads/praktikum/m3-panic-debug-audit
+./logs/m10_serial.log
+./build/normal/kernel/core/panic.o
+./build/m11_qemu_serial.log
+./kernel/include/mcsos/kernel/panic.h
+./kernel/core/panic.c

@@ -1,0 +1,7 @@
+=== M5 ===
+./build/normal/kernel/core/pit.o
+./build/normal/kernel/core/pic.o
+./kernel/arch/x86_64/include/mcsos/arch/pit.h
+./kernel/arch/x86_64/include/mcsos/arch/pic.h
+./kernel/core/pic.c
+./kernel/core/pit.c

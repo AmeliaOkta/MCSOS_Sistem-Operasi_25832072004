@@ -1,0 +1,17 @@
+=== M10 ===
+./.git/logs/refs/remotes/origin/praktikum/m10-syscall-abi
+./.git/logs/refs/heads/praktikum/m10-syscall-abi
+./.git/refs/remotes/origin/praktikum/m10-syscall-abi
+./.git/refs/heads/praktikum/m10-syscall-abi
+./include/mcsos/syscall.h
+./build/normal/kernel/syscall
+./build/normal/kernel/syscall/syscall.o
+./build/normal/kernel/syscall/syscall_entry.o
+./build/m10_syscall_combined.o
+./build/test_syscall_host
+./build/m10_syscall.o
+./build/m10_syscall_entry.o
+./kernel/syscall
+./kernel/syscall/syscall_entry.S
+./kernel/syscall/syscall.c
+./tests/test_syscall_host.c

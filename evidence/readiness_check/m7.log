@@ -1,0 +1,11 @@
+=== M7 ===
+./build/normal/kernel/core/vmm.o
+./build/test_vmm_host
+./build/vmm.undefined.txt
+./build/vmm.objdump.txt
+./build/vmm.o
+./kernel/include/vmm.h
+./kernel/core/vmm.c
+./evidence/M7/vmm.undefined.txt
+./evidence/M7/vmm.objdump.txt
+./tests/test_vmm_host.c
