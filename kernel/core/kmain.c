@@ -10,6 +10,7 @@
 #include "mcsos_thread.h"
 #include "m11_elf_loader.h"
 #include "mcsos/syscall.h"
+#include "mcs_vfs.h"
 #include "mcsos/arch/idt.h"
 #include "mcsos/arch/pit.h"
 
@@ -203,6 +204,7 @@ static void kernel_vmm_init(void) {
 /* ── Kernel entry point ─────────────────────────────────────────────────── */
 
 /* -- M9 Scheduler --------------------------------------------------------- */
+static mcs_ramfs_t      kernel_ramfs;
 static mcsos_scheduler_t g_sched;
 static mcsos_thread_t    g_boot_thread;
 static mcsos_thread_t    g_thread_a;
@@ -261,6 +263,14 @@ static void kernel_m9_scheduler_init(void) {
 }
 
 
+static mcs_fd_table_t *k_get_current_fd_table(void) {
+    if (!g_sched.initialized || g_sched.current == (mcsos_thread_t *)0) return (mcs_fd_table_t *)0;
+    return &g_sched.current->fd_table;
+}
+static mcs_ramfs_t *k_get_ramfs(void) {
+    return &kernel_ramfs;
+}
+
 extern void serial_putc(char c);
 
 static int64_t k_write_serial(const char *buf, size_t len) {
@@ -276,10 +286,12 @@ static void k_exit_current(int code) {
 }
 static void kernel_m10_syscall_init(void) {
     mcsos_syscall_ops_t ops = {
-        .get_ticks     = k_get_ticks,
-        .yield_current = k_yield_current,
-        .exit_current  = k_exit_current,
-        .write_serial  = k_write_serial,
+        .get_ticks           = k_get_ticks,
+        .yield_current       = k_yield_current,
+        .exit_current        = k_exit_current,
+        .write_serial        = k_write_serial,
+        .get_current_fd_table = k_get_current_fd_table,
+        .get_ramfs            = k_get_ramfs,
     };
     mcsos_syscall_init(&ops);
     mcsos_syscall_set_user_region((mcsos_user_region_t){
@@ -432,6 +444,10 @@ void kmain(void) {
     log_writeln("[MCSOS:M8] heap: ready");
     log_writeln("[MCSOS:M7] sti: enabling interrupts");
     cpu_sti();
+
+    mcs_ramfs_init(&kernel_ramfs);
+    mcs_ramfs_seed_file(&kernel_ramfs, "/hello.txt", (const uint8_t *)"hello-mcsos", 11);
+    log_writeln("[M13] ramfs: initialized + demo file seeded");
 
     kernel_m10_syscall_init();
     kernel_m11_loader_smoke();

@@ -40,6 +40,7 @@ int mcsos_scheduler_init(mcsos_scheduler_t *sched,
     boot_thread->switches   = 0;
     boot_thread->ticks      = 0;
     boot_thread->exit_code  = 0;
+    mcs_fd_table_init(&boot_thread->fd_table);
     zero_context(&boot_thread->context);
     sched->current          = boot_thread;
     sched->idle             = boot_thread;
@@ -84,6 +85,7 @@ int mcsos_thread_prepare(mcsos_thread_t      *thread,
     thread->switches    = 0;
     thread->ticks       = 0;
     thread->exit_code   = 0;
+    mcs_fd_table_init(&thread->fd_table);
     return MCSOS_SCHED_OK;
 }
 

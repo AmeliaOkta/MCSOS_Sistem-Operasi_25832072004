@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include "mcs_vfs.h"
 
 #define MCSOS_SYSCALL_ABI_VERSION 1u
 #define MCSOS_SYSCALL_MAX_ARGS 6u
@@ -13,7 +14,12 @@ typedef enum mcsos_syscall_nr {
     MCSOS_SYS_WRITE_SERIAL = 2,
     MCSOS_SYS_YIELD = 3,
     MCSOS_SYS_EXIT_THREAD = 4,
-    MCSOS_SYS_MAX = 5
+    MCSOS_SYS_OPEN = 5,
+    MCSOS_SYS_READ = 6,
+    MCSOS_SYS_WRITE = 7,
+    MCSOS_SYS_LSEEK = 8,
+    MCSOS_SYS_CLOSE = 9,
+    MCSOS_SYS_MAX = 10
 } mcsos_syscall_nr_t;
 
 typedef enum mcsos_syscall_status {
@@ -46,12 +52,15 @@ typedef struct mcsos_syscall_ops {
     void (*yield_current)(void);
     void (*exit_current)(int code);
     int64_t (*write_serial)(const char *buf, size_t len);
+    mcs_fd_table_t *(*get_current_fd_table)(void);
+    mcs_ramfs_t    *(*get_ramfs)(void);
 } mcsos_syscall_ops_t;
 
 void mcsos_syscall_init(const mcsos_syscall_ops_t *ops);
 void mcsos_syscall_set_user_region(mcsos_user_region_t region);
 int mcsos_user_check_range(uintptr_t addr, size_t len);
 int mcsos_copy_from_user(void *dst, const void *src, size_t len);
+int mcsos_copy_to_user(void *dst, const void *src, size_t len);
 int64_t mcsos_syscall_dispatch(uint64_t nr, uint64_t arg0, uint64_t arg1,
                                uint64_t arg2, uint64_t arg3, uint64_t arg4,
                                uint64_t arg5);
