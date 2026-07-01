@@ -1,0 +1,11 @@
+=== M12 ===
+./.git/refs/heads/praktikum/m12-sync
+./.git/refs/remotes/origin/praktikum/m12-sync
+./include/mcs_sync.h
+./kernel/sync/lockdep.c
+./kernel/sync/mutex.c
+./kernel/sync/spinlock.c
+./build/m12/lockdep.o
+./build/m12/mutex.o
+./build/m12/spinlock.o
+./build/m12/m12_sync_host_test
