@@ -475,3 +475,26 @@ m12-all: m12-host-test m12-audit
 
 m12-clean:
 >rm -f build/m12/*
+
+.PHONY: m13-clean m13-host-test m13-freestanding m13-audit m13-all
+M13_VFS_SRCS := kernel/vfs/ramfs.c kernel/vfs/fd.c kernel/vfs/sys_vfs.c
+M13_HOST_CFLAGS := -std=c17 -Wall -Wextra -Werror -Iinclude -O2
+build/m13:
+>mkdir -p build/m13
+m13-host-test: build/m13
+>$(HOSTCC) $(M13_HOST_CFLAGS) $(M13_VFS_SRCS) tests/m13_vfs_host_test.c -o build/m13/m13_vfs_host_test
+>build/m13/m13_vfs_host_test | tee build/m13/host-test.log
+m13-freestanding: build/m13
+>$(CC) $(COMMON_CFLAGS) -c kernel/vfs/ramfs.c -o build/m13/ramfs.o
+>$(CC) $(COMMON_CFLAGS) -c kernel/vfs/fd.c -o build/m13/fd.o
+>$(CC) $(COMMON_CFLAGS) -c kernel/vfs/sys_vfs.c -o build/m13/sys_vfs.o
+m13-audit: m13-freestanding
+>$(LD) -r -o build/m13/vfs.o build/m13/ramfs.o build/m13/fd.o build/m13/sys_vfs.o
+>$(NM) -u build/m13/vfs.o | tee build/m13/nm-undefined.txt
+>$(READELF) -h build/m13/vfs.o | tee build/m13/readelf-vfs.txt
+>$(OBJDUMP) -d build/m13/fd.o | tee build/m13/objdump-fd.txt
+>sha256sum build/m13/ramfs.o build/m13/fd.o build/m13/sys_vfs.o build/m13/vfs.o build/m13/m13_vfs_host_test > build/m13/sha256sums.txt
+>@! grep -q ' U ' build/m13/nm-undefined.txt
+m13-all: m13-host-test m13-audit
+m13-clean:
+>rm -f build/m13/*
