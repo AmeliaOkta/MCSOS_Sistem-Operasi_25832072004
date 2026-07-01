@@ -48,6 +48,7 @@ static uint64_t         kernel_hhdm_offset;
 
 static void m8_heap_bootstrap(void);
 static void kernel_m11_loader_smoke(void);
+static void kernel_m13_vfs_syscall_smoke(void);
 
 /* ── External symbols dari M4/M5 ───────────────────────────────────────── */
 extern void x86_64_idt_init(void);
@@ -223,6 +224,7 @@ static void m9_thread_start(void) {
 
 static void demo_thread_a(void *arg) {
     (void)arg;
+    kernel_m13_vfs_syscall_smoke();
     for (;;) {
         log_writeln("[M9] thread A tick");
         mcsos_sched_yield(&g_sched);
@@ -412,6 +414,55 @@ void m12_sync_selftest(void) {
     }
 
     log_writeln("[M12] sync selftest passed");
+}
+
+
+/* ── M13: VFS syscall smoke test (real dispatch, bukan panggil mcs_vfs_* langsung) ──
+ * Catatan simplifikasi: user_region sementara di-override untuk mencakup
+ * alamat buffer kernel statis di bawah, karena belum ada user page table
+ * nyata di titik boot ini. Region asli M11 dipulihkan setelah test.
+ * ───────────────────────────────────────────────────────────────────────── */
+static void kernel_m13_vfs_syscall_smoke(void) {
+    static char          smoke_path[16] = "/hello.txt";
+    static unsigned char smoke_buf[16];
+
+    mcsos_syscall_set_user_region((mcsos_user_region_t){
+        .base  = 0x1ULL,
+        .limit = 0xFFFFFFFFFFFFFFFEULL,
+    });
+
+    int64_t fd = mcsos_syscall_dispatch(MCSOS_SYS_OPEN,
+                                         (uint64_t)(uintptr_t)smoke_path,
+                                         10u,
+                                         (uint64_t)MCS_O_RDONLY,
+                                         0, 0, 0);
+    if (fd < 0) KERNEL_PANIC("M13 syscall open failed", (uint64_t)fd);
+    log_key_value_hex64("[M13] syscall: open fd", (uint64_t)fd);
+
+    int64_t n = mcsos_syscall_dispatch(MCSOS_SYS_READ, (uint64_t)fd,
+                                        (uint64_t)(uintptr_t)smoke_buf, 5u,
+                                        0, 0, 0);
+    if (n != 5) KERNEL_PANIC("M13 syscall read failed", (uint64_t)n);
+    if (smoke_buf[0] != 'h' || smoke_buf[1] != 'e' || smoke_buf[2] != 'l'
+     || smoke_buf[3] != 'l' || smoke_buf[4] != 'o') {
+        KERNEL_PANIC("M13 syscall read data mismatch", 0);
+    }
+    log_writeln("[M13] syscall: read data verified");
+
+    int64_t seek_r = mcsos_syscall_dispatch(MCSOS_SYS_LSEEK, (uint64_t)fd,
+                                             0, MCS_SEEK_SET, 0, 0, 0);
+    if (seek_r != 0) KERNEL_PANIC("M13 syscall lseek failed", (uint64_t)seek_r);
+
+    int64_t close_r = mcsos_syscall_dispatch(MCSOS_SYS_CLOSE, (uint64_t)fd,
+                                              0, 0, 0, 0, 0);
+    if (close_r != MCS_OK) KERNEL_PANIC("M13 syscall close failed", (uint64_t)close_r);
+    log_writeln("[M13] syscall: close ok");
+    log_writeln("[M13] syscall smoke done");
+
+    mcsos_syscall_set_user_region((mcsos_user_region_t){
+        .base  = 0x0000000000400000ULL,
+        .limit = 0x0000800000000000ULL,
+    });
 }
 
 void kmain(void) {
