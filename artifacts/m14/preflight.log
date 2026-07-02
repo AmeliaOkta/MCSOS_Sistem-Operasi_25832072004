@@ -24,5 +24,7 @@ WARN_DOC_NOT_FOUND_IN_REPO: OS_panduan_M10.md
 WARN_DOC_NOT_FOUND_IN_REPO: OS_panduan_M11.md
 WARN_DOC_NOT_FOUND_IN_REPO: OS_panduan_M12.md
 WARN_DOC_NOT_FOUND_IN_REPO: OS_panduan_M13.md
+ M artifacts/m14/git_status_before_m14.txt
+ M artifacts/m14/preflight.log
 WARN: working tree tidak bersih; commit atau stash perubahan sebelum final grading
 M14_PREFLIGHT_DONE
