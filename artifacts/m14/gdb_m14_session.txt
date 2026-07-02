@@ -1,0 +1,64 @@
+GNU gdb (Ubuntu 15.1-1ubuntu1~24.04.1) 15.1
+Copyright (C) 2024 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+Type "show copying" and "show warranty" for details.
+This GDB was configured as "x86_64-linux-gnu".
+Type "show configuration" for configuration details.
+For bug reporting instructions, please see:
+<https://www.gnu.org/software/gdb/bugs/>.
+Find the GDB manual and other documentation resources online at:
+    <http://www.gnu.org/software/gdb/documentation/>.
+
+For help, type "help".
+Type "apropos word" to search for commands related to "word"...
+Reading symbols from build/kernel.elf...
+(No debugging symbols found in build/kernel.elf)
+Remote debugging using :1234
+0x000000000000fff0 in ?? ()
+Breakpoint 1 at 0xffffffff80000940
+Breakpoint 2 at 0xffffffff80000b20
+Breakpoint 3 at 0xffffffff80000c60
+Continuing.
+
+Breakpoint 1, 0xffffffff80000940 in mcsos_blk_register ()
+[?2004h(gdb) bt
+[?2004l#0  0xffffffff80000940 in mcsos_blk_register ()
+#1  0xffffffff80000eaf in m14_block_demo_init ()
+#2  0xffffffff800013f2 in kmain ()
+[?2004h(gdb) [7minfo registers rip rsp rbp[27m[C[C[C[C[C[Cinfo registers rip rsp rbp
+[?2004lrip            0xffffffff80000940  0xffffffff80000940 <mcsos_blk_register>
+rsp            0xffff80000ffabfc8  0xffff80000ffabfc8
+rbp            0xffff80000ffabfe0  0xffff80000ffabfe0
+[?2004h(gdb) info args
+[?2004lNo symbol table info available.
+[?2004h(gdb) p *dev
+[?2004lNo symbol table is loaded.  Use the "file" command.
+[?2004h(gdb) continue
+[?2004lContinuing.
+
+Breakpoint 1, 0xffffffff80000940 in mcsos_blk_register ()
+[?2004h[?2004l[?2004h(gdb) [7minfo breakpoints[27m[C[C[C[C[C[Cinfo breakpoints
+[?2004lNum     Type           Disp Enb Address            What
+1       breakpoint     keep y   0xffffffff80000940 <mcsos_blk_register>
+	breakpoint already hit 2 times
+2       breakpoint     keep y   0xffffffff80000b20 <mcsos_blk_read>
+3       breakpoint     keep y   0xffffffff80000c60 <mcsos_blk_write>
+[?2004h(gdb) [7mx/3i $rip[27m[C[C[C[C[C[Cx/3i $rip
+[?2004l=> 0xffffffff80000940 <mcsos_blk_register>:	push   %rbp
+   0xffffffff80000941 <mcsos_blk_register+1>:	
+    mov    %rsp,%rbp
+   0xffffffff80000944 <mcsos_blk_register+4>:	
+    sub    $0x10,%rsp
+[?2004h(gdb) [7mstepi[27mstepi
+[?2004l
+Breakpoint 1, 0xffffffff80000940 in mcsos_blk_register ()
+[?2004h[?2004l[?2004h(gdb) [7mx/3i $rip[27m[C[C[C[C[C[Cx/3i $rip
+[?2004l=> 0xffffffff80000940 <mcsos_blk_register>:	push   %rbp
+   0xffffffff80000941 <mcsos_blk_register+1>:	
+    mov    %rsp,%rbp
+   0xffffffff80000944 <mcsos_blk_register+4>:	
+    sub    $0x10,%rsp
+[?2004h(gdb) [7mcontinue[27m[C[C[C[C[C[Ccontinue
+[?2004lContinuing.
