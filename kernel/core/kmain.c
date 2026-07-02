@@ -55,6 +55,7 @@ extern void x86_64_idt_init(void);
 extern void x86_64_trigger_breakpoint_test(void);
 extern void serial_init(void);
 extern void *memset(void *dest, int value, __SIZE_TYPE__ count);
+extern void m14_block_demo_init(void);
 
 /* ── VMM adapter: alloc frame dari PMM kernel ───────────────────────────── */
 static uint64_t kernel_vmm_alloc(void *ctx) {
@@ -493,6 +494,9 @@ void kmain(void) {
 
     m8_heap_bootstrap();
     log_writeln("[MCSOS:M8] heap: ready");
+
+    m14_block_demo_init();
+    log_writeln("[M14] block: ram0 registered");
     log_writeln("[MCSOS:M7] sti: enabling interrupts");
     cpu_sti();
 
