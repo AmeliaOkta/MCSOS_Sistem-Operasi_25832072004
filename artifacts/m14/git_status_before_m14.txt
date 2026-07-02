@@ -1,3 +1,2 @@
-?? artifacts/m14/git_status_before_m14.txt
-?? artifacts/m14/preflight.log
-?? scripts/m14_preflight.sh
+ M artifacts/m14/git_status_before_m14.txt
+ M artifacts/m14/preflight.log
