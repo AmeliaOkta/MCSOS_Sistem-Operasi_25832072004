@@ -498,3 +498,26 @@ m13-audit: m13-freestanding
 m13-all: m13-host-test m13-audit
 m13-clean:
 >rm -f build/m13/*
+
+.PHONY: m14-clean m14-host-test m14-freestanding m14-audit m14-all
+M14_BLOCK_SRCS := kernel/block/block.c kernel/block/ramblk.c kernel/block/bcache.c
+M14_HOST_CFLAGS := -std=c17 -Wall -Wextra -Werror -Iinclude -O2
+build/m14:
+>mkdir -p build/m14
+m14-host-test: build/m14
+>$(HOSTCC) $(M14_HOST_CFLAGS) $(M14_BLOCK_SRCS) tests/host/test_m14_block.c -o build/m14/test_m14_block
+>build/m14/test_m14_block | tee build/m14/host-test.log
+m14-freestanding: build/m14
+>$(CC) $(COMMON_CFLAGS) -c kernel/block/block.c -o build/m14/block.o
+>$(CC) $(COMMON_CFLAGS) -c kernel/block/ramblk.c -o build/m14/ramblk.o
+>$(CC) $(COMMON_CFLAGS) -c kernel/block/bcache.c -o build/m14/bcache.o
+m14-audit: m14-freestanding
+>$(LD) -r -o build/m14/m14_block_layer.o build/m14/block.o build/m14/ramblk.o build/m14/bcache.o
+>$(NM) -u build/m14/m14_block_layer.o | tee build/m14/nm-undefined.txt
+>$(READELF) -h build/m14/m14_block_layer.o | tee build/m14/readelf-block.txt
+>$(OBJDUMP) -dr build/m14/m14_block_layer.o | tee build/m14/objdump-block.txt
+>sha256sum build/m14/block.o build/m14/ramblk.o build/m14/bcache.o build/m14/m14_block_layer.o build/m14/test_m14_block > build/m14/sha256sums.txt
+>@! grep -q ' U ' build/m14/nm-undefined.txt
+m14-all: m14-host-test m14-audit
+m14-clean:
+>rm -f build/m14/*
