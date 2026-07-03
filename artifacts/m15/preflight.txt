@@ -3,7 +3,7 @@
  M artifacts/m15/preflight.txt
 ?? artifacts/m14/git_status_after_m14.txt
 ?? artifacts/m14/m14_final_sha256.txt
-fc369b4
+f0a0ff0
 == toolchain ==
 Ubuntu clang version 18.1.3 (1ubuntu1)
 GNU ld (GNU Binutils for Ubuntu) 2.42
@@ -25,5 +25,5 @@ artifacts/m9: missing
 artifacts/m10: missing
 artifacts/m11: missing
 artifacts/m12: missing
-artifacts/m13: missing
+artifacts/m13: present
 artifacts/m14: present
