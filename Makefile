@@ -521,3 +521,31 @@ m14-audit: m14-freestanding
 m14-all: m14-host-test m14-audit
 m14-clean:
 >rm -f build/m14/*
+
+# ── M15 MCSFS1 filesystem ───────────────────────────────────────────────────
+.PHONY: m15-clean m15-host-test m15-freestanding m15-audit m15-all
+
+M15_HOST_CFLAGS := -std=c17 -Wall -Wextra -Werror -Iinclude -O2
+
+build/m15:
+>mkdir -p build/m15
+
+m15-host-test: build/m15
+>$(HOSTCC) $(M15_HOST_CFLAGS) fs/mcsfs1/mcsfs1.c tests/m15/test_mcsfs1.c -o build/m15/test_mcsfs1
+>build/m15/test_mcsfs1 | tee build/m15/host-test.log
+
+m15-freestanding: build/m15
+>$(CC) $(COMMON_CFLAGS) -c fs/mcsfs1/mcsfs1.c -o build/m15/mcsfs1.o
+
+m15-audit: m15-freestanding
+>$(LD) -r -o build/m15/m15_mcsfs1.o build/m15/mcsfs1.o
+>$(NM) -u build/m15/m15_mcsfs1.o | tee build/m15/nm-undefined.txt
+>$(READELF) -h build/m15/m15_mcsfs1.o | tee build/m15/readelf-mcsfs1.txt
+>$(OBJDUMP) -dr build/m15/m15_mcsfs1.o | tee build/m15/objdump-mcsfs1.txt
+>sha256sum build/m15/mcsfs1.o build/m15/m15_mcsfs1.o build/m15/test_mcsfs1 > build/m15/sha256sums.txt
+>@! grep -q ' U ' build/m15/nm-undefined.txt
+
+m15-all: m15-host-test m15-audit
+
+m15-clean:
+>rm -f build/m15/*
